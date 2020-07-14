@@ -6,7 +6,7 @@
   "scripts": {
     "start": "concurrently 'npm run rclone' 'npm run server'",
     "server": "tsc && node dist",
-    "rclone": "rclone --config='./rclone.conf' mount dropper: ./files",
+    "rclone": "rclone --config='./rclone.conf' serve http dropper:",
     "debug": "tsc && node --inspect dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,7 +16,9 @@
     "base64url": "^3.0.1",
     "concurrently": "^5.2.0",
     "express": "^4.17.1",
-    "mime-types": "^2.1.27"
+    "http-proxy-middleware": "^1.0.5",
+    "mime-types": "^2.1.27",
+    "rclone-bin": "^1.51.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.7",
