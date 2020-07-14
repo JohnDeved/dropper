@@ -5,12 +5,15 @@ import * as mime from 'mime-types'
 import base64url from "base64url"
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { spawn } from 'child_process'
+import * as path from 'path'
 
 const rclone = process.env.NODE_ENV === 'production' ? './rclone' : 'rclone'
-const rootDomain = 'https://dropper.up1.dev'
 spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])
 
 const app = express()
+app.set('view engine', 'hbs')
+app.set('views', path.join(__dirname, '..', 'views'));
+
 app.use('/oembed', (req, res) => {
   const url = req.query.url
   if (!url) return res.sendStatus(500)
@@ -33,39 +36,7 @@ app.use('/e/:filename', (req, res) => {
   const { filename } = req.params
   console.log(filename)
 
-  res.send(`
-    <html>
-    <head>
-          <link href="//vjs.zencdn.net/4.5/video-js.css" rel="stylesheet">
-      <style>
-      * {
-        padding:0;
-        margin:0;
-        width:100%;
-        height:100%;
-        background:#000;
-      }
-      </style>
-    </head>
-
-    <body>
-      <video id="video" width="100%" height="100%">
-        <source src="/d/${filename}" type='video/mp4' />
-      </video>
-
-      <script src="//vjs.zencdn.net/4.5/video.js"></script>
-      <script type="text/javascript" src="http://cdn.embed.ly/player-0.1.0.min.js"></script>
-      <script>
-        var video = document.getElementById('video');
-
-        videojs("video", {}, function(){
-          var adapter = new playerjs.VideoJSAdapter(this);
-          adapter.ready();
-        });
-      </script>
-    </body>
-    </html>
-  `)
+  res.render('embed', { filename })
 })
 
 app.use('/d/:filename', createProxyMiddleware({
