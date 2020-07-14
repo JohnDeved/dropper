@@ -14,12 +14,26 @@ const app = express()
 app.use('/v/:filename', (req, res) => {
   const { filename } = req.params
   res.send(`
-    <meta property="og:type" content="video">
-    <meta property="og:video" content="${rootDomain}/${filename}">
-    <meta property="og:video:secure_url" content="${rootDomain}/${filename}">
-    <video controls autoplay name="media">
-      <source src="${rootDomain}/E49wsNc.mp4" type="video/mp4">
-    </video>
+    <head>
+      <meta property="og:type" content="video">
+      <meta property="og:type" content="video.other" />
+      <meta property="og:image"             content="https://i.imgur.com/pAPbV6I.jpg?fbplay" />
+      <meta property="og:video:width"       content="960" />
+      <meta property="og:video:height"      content="540" />
+      <meta property="og:video"             content="${rootDomain}/${filename}" />
+      <meta property="og:video:secure_url"  content="${rootDomain}/${filename}" />
+      <meta property="og:video:type"        content="video/mp4" />
+      <meta name="twitter:card"                       content="player" />
+      <meta name="twitter:player:width"               content="960" />
+      <meta name="twitter:player:height"              content="540" />
+      <meta name="twitter:player:stream"              content="${rootDomain}/${filename}" />
+      <meta name="twitter:player:stream:content_type" content="video/mp4">
+    </head>
+    <body>
+      <video controls autoplay name="media">
+        <source src="${rootDomain}/E49wsNc.mp4" type="video/mp4">
+      </video>
+    </body>
   `)
 })
 app.use('/:filename', createProxyMiddleware({ target: 'http://127.0.0.1:8080', changeOrigin: true }))
