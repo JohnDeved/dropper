@@ -10,6 +10,7 @@ RUN mkdir /files
 
 FROM rclone/rclone
 COPY rclone.conf /
+RUN mkdir ./files
 RUN rclone --config=/rclone.conf mount dropper: ./files
 
 COPY --from=node . .
