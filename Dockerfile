@@ -6,6 +6,6 @@ RUN npm i
 COPY . /
 
 RUN mkdir /files
-RUN https://rclone.org/install.sh | bash
+RUN https://rclone.org/install.sh | sudo bash
 
 CMD npm start
