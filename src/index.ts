@@ -7,10 +7,21 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { spawn } from 'child_process'
 
 const rclone = process.env.NODE_ENV === 'production' ? './rclone' : 'rclone'
-console.log('rclone path ' + rclone)
+const rootDomain = 'https://dropper.up1.dev'
 spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])
 
 const app = express()
+app.use('/v/:filename', (req, res) => {
+  const { filename } = req.params
+  res.send(`
+    <meta property="og:type" content="video">
+    <meta property="og:video" content="${rootDomain}/${filename}">
+    <meta property="og:video:secure_url" content="${rootDomain}/${filename}">
+    <video controls autoplay name="media">
+      <source src="${rootDomain}/E49wsNc.mp4" type="video/mp4">
+    </video>
+  `)
+})
 app.use('/:filename', createProxyMiddleware({ target: 'http://127.0.0.1:8080', changeOrigin: true }))
 
 app.post('/', (req, res) => {
