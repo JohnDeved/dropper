@@ -1,5 +1,4 @@
-FROM rclone/rclone AS rclone
-FROM node:12
+FROM node:12 AS node
 
 COPY package.json /
 COPY package-lock.json /
@@ -8,5 +7,8 @@ COPY . /
 
 RUN mkdir /files
 
-COPY --from=rclone . .
+FROM rclone/rclone
+RUN rclone --config='./rclone.conf' mount dropper: ./files
+
+COPY --from=node . .
 CMD npm start
