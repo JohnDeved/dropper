@@ -11,22 +11,26 @@ const rootDomain = 'https://dropper.up1.dev'
 spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])
 
 const app = express()
-app.use('/v/:filename', (req, res) => {
-  const { filename } = req.params
-  res.send(`
-    <head>
-      <meta property="og:video:iframe" content="https://redgifs.com/ifr/CraftyDeficientCoelacanth"/>
-    </head>
-    <body>
-      <video controls autoplay name="media">
-        <source src="${rootDomain}/E49wsNc.mp4" type="video/mp4">
-      </video>
-    </body>
-  `)
-})
-app.use('/:filename', createProxyMiddleware({ target: 'http://127.0.0.1:8080', changeOrigin: true }))
+app.use('/oembed', (req, res) => {
+  const url = req.query.url
+  if (!url) return res.sendStatus(500)
 
-app.post('/', (req, res) => {
+  res.json({
+    type: "rich",
+    version: "1.0",
+    title: "dropper file",
+    provider_name: "dropper",
+    provider_url: "https://dropper.file",
+    cache_age: 3600,
+    thumbnail_url: "https://dummyimage.com/600x400/000/fff",
+    thumbnail_width: 600,
+    thumbnail_height: 400,
+    html: `<iframe src="${url}"></iframe>`,
+  })
+})
+app.use('/d/:filename', createProxyMiddleware({ target: 'http://127.0.0.1:8080', changeOrigin: true }))
+
+app.post('/u', (req, res) => {
   const type = req.header('Content-Type')
   const ext = mime.extension(type)
 
