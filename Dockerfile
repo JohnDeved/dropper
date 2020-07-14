@@ -8,7 +8,7 @@ COPY . /
 RUN mkdir /files
 
 FROM rclone/rclone
-RUN rclone --config='./rclone.conf' mount dropper: ./files
+RUN rclone --config='rclone.conf' mount dropper: ./files
 
 COPY --from=node . .
 CMD npm start
