@@ -15,20 +15,7 @@ app.use('/v/:filename', (req, res) => {
   const { filename } = req.params
   res.send(`
     <head>
-      <meta property="og:type" content="video">
-      <meta property="og:type" content="video.other" />
-      <meta property="og:video:width"       content="960" />
-      <meta property="og:video:height"      content="540" />
-      <meta itemprop="contentURL" content="${rootDomain}/${filename}" />
-      <meta itemprop="embedURL" content="${rootDomain}/${filename}" />
-      <meta property="og:video"             content="${rootDomain}/${filename}" />
-      <meta property="og:video:secure_url"  content="${rootDomain}/${filename}" />
-      <meta property="og:video:type"        content="video/mp4" />
-      <meta name="twitter:card"                       content="player" />
-      <meta name="twitter:player:width"               content="960" />
-      <meta name="twitter:player:height"              content="540" />
-      <meta name="twitter:player:stream"              content="${rootDomain}/${filename}" />
-      <meta name="twitter:player:stream:content_type" content="video/mp4">
+      <meta property="og:video:iframe" content="https://redgifs.com/ifr/CraftyDeficientCoelacanth"/>
     </head>
     <body>
       <video controls autoplay name="media">
