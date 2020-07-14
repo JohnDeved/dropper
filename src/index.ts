@@ -17,9 +17,10 @@ app.use('/v/:filename', (req, res) => {
     <head>
       <meta property="og:type" content="video">
       <meta property="og:type" content="video.other" />
-      <meta property="og:image"             content="https://i.imgur.com/pAPbV6I.jpg?fbplay" />
       <meta property="og:video:width"       content="960" />
       <meta property="og:video:height"      content="540" />
+      <meta itemprop="contentURL" content="${rootDomain}/${filename}" />
+      <meta itemprop="embedURL" content="${rootDomain}/${filename}" />
       <meta property="og:video"             content="${rootDomain}/${filename}" />
       <meta property="og:video:secure_url"  content="${rootDomain}/${filename}" />
       <meta property="og:video:type"        content="video/mp4" />
