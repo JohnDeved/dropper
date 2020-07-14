@@ -1,9 +1,9 @@
-FROM node:latest AS node_base
+FROM node:12 AS node_base
 FROM rclone/rclone
-COPY --from=node_base . .
 
 COPY package.json /
 COPY package-lock.json /
+COPY --from=node_base . .
 RUN npm i
 COPY . /
 
