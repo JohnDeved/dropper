@@ -28,7 +28,12 @@ app.use('/oembed', (req, res) => {
     html: `<iframe src="${url}"></iframe>`,
   })
 })
-app.use('/d/:filename', createProxyMiddleware({ target: 'http://127.0.0.1:8080', changeOrigin: true }))
+
+app.use('/d/:filename', createProxyMiddleware({
+  target: 'http://127.0.0.1:8080',
+  changeOrigin: true,
+  pathRewrite: { '^/d': '/' },
+}))
 
 app.post('/u', (req, res) => {
   const type = req.header('Content-Type')
