@@ -7,6 +7,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { spawn } from 'child_process'
 
 const rclone = process.env.NODE_ENV === 'production' ? './rclone' : 'rclone'
+console.log('rclone path ' + rclone)
 spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])
 
 const app = express()
