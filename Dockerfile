@@ -3,6 +3,7 @@ FROM rclone/rclone
 
 COPY package.json /
 COPY package-lock.json /
+RUN rclone
 RUN npm i
 COPY . /
 
