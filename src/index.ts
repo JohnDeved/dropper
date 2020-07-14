@@ -7,7 +7,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { spawn } from 'child_process'
 
 const rclone = process.env.NODE_ENV === 'production' ? './rclone' : 'rclone'
-spawn('rclone', ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])
+spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])
 
 const app = express()
 app.use('/:filename', createProxyMiddleware({ target: 'http://127.0.0.1:8080', changeOrigin: true }))
