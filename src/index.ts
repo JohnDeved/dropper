@@ -29,6 +29,45 @@ app.use('/oembed', (req, res) => {
   })
 })
 
+app.use('/e/:filename', (req, res) => {
+  const { filename } = req.params
+  console.log(filename)
+
+  res.send(`
+    <html>
+    <head>
+          <link href="//vjs.zencdn.net/4.5/video-js.css" rel="stylesheet">
+      <style>
+      * {
+        padding:0;
+        margin:0;
+        width:100%;
+        height:100%;
+        background:#000;
+      }
+      </style>
+    </head>
+
+    <body>
+      <video id="video" width="100%" height="100%">
+        <source src="/d/${filename}" type='video/mp4' />
+      </video>
+
+      <script src="//vjs.zencdn.net/4.5/video.js"></script>
+      <script type="text/javascript" src="http://cdn.embed.ly/player-0.1.0.min.js"></script>
+      <script>
+        var video = document.getElementById('video');
+
+        videojs("video", {}, function(){
+          var adapter = new playerjs.VideoJSAdapter(this);
+          adapter.ready();
+        });
+      </script>
+    </body>
+    </html>
+  `)
+})
+
 app.use('/d/:filename', createProxyMiddleware({
   target: 'http://127.0.0.1:8080',
   changeOrigin: true,
