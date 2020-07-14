@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently 'npm run rclone' 'npm run server'",
-    "server": "tsc && node dist",
-    "rclone": "rclone --config='./rclone.conf' serve http dropper:",
+    "start": "tsc && node dist",
     "debug": "tsc && node --inspect dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
