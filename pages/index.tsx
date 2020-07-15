@@ -82,6 +82,11 @@ export default function Home() {
         <title>Dropper</title>
       </Head>
 
+      <div style={{marginBottom: 20, textAlign: 'center', fontFamily: 'Poppins'}}>
+        <h1>Dropper</h1>
+        <p style={{fontWeight: 'lighter'}}>easy file uploads</p>
+      </div>
+
       <Upload>
         <div style={{ lineHeight: '200px' }}>Click or Drag files to this area to upload</div>
       </Upload>
