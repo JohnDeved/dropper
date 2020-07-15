@@ -21,7 +21,7 @@ router.post('/', (req, res) => {
 
     busboy.on('finish', async () => {
       await move(path)
-      res.send(filehash)
+      res.json({ filehash, filename })
     })
   })
 
