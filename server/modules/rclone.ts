@@ -1,6 +1,7 @@
 import { spawn } from 'child_process'
+import { dev } from './config'
 
-const rclone = process.env.NODE_ENV === 'production' ? './rclone' : 'rclone'
+const rclone = dev ? 'rclone' : './rclone'
 
 export function serve () {
   spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])

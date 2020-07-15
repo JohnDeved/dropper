@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 import * as mime from 'mime-types'
 import base64url from "base64url"
-import * as Busboy from 'busboy'
+import Busboy from 'busboy'
 import * as express from 'express'
 import { move } from '../modules/rclone'
 

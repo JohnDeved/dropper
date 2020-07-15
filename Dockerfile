@@ -5,8 +5,7 @@ COPY package-lock.json /
 COPY rclone /
 RUN npm i
 COPY . /
-
-RUN mkdir ./files
+RUN npm run build
 
 ENV NODE_ENV=production
 CMD npm start
