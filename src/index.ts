@@ -1,18 +1,14 @@
-import * as fs from 'fs'
 import * as express from 'express'
-import * as crypto from 'crypto'
-import * as mime from 'mime-types'
-import base64url from "base64url"
-import { createProxyMiddleware } from 'http-proxy-middleware';
-import { spawn } from 'child_process'
+import { createProxyMiddleware } from 'http-proxy-middleware'
 import * as path from 'path'
+import { serve } from './modules/rclone'
+import upload from './routes/upload'
 
-const rclone = process.env.NODE_ENV === 'production' ? './rclone' : 'rclone'
-spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])
+serve()
 
 const app = express()
 app.set('view engine', 'hbs')
-app.set('views', path.join(__dirname, '..', 'views'));
+app.set('views', path.join(__dirname, '..', 'views'))
 
 app.use('/oembed', (req, res) => {
   const url = req.query.url
@@ -39,27 +35,12 @@ app.use('/e/:filename', (req, res) => {
   res.render('embed', { filename })
 })
 
-app.use('/d/:filename', createProxyMiddleware({
+app.use('/stream/:filename', createProxyMiddleware({
   target: 'http://127.0.0.1:8080',
   changeOrigin: true,
   pathRewrite: { '^/d': '/' },
 }))
 
-app.post('/u', (req, res) => {
-  const type = req.header('Content-Type')
-  const ext = mime.extension(type)
-
-  const hash = base64url(crypto.randomBytes(5))
-  const filename = `${hash}.${ext}`
-  const path = `tmp/${filename}`
-
-  req.pipe(fs.createWriteStream(path))
-  req.on('end', async () => {
-
-    spawn(rclone, ['--config=./rclone.conf', 'move', path, 'dropper:']).on('close', () => {
-      res.send(filename)
-    })
-  })
-})
+app.use('/upload', upload)
 
 app.listen(3000)
