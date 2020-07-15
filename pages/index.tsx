@@ -17,14 +17,24 @@ const Upload: React.FC = props => {
     return list[getFileIndex(file)]
   }
 
-  function handleUrl (file: FileType) {
+  function getUrl (file: FileType) {
     const { url } = getFile(file)
-    const fullUrl = `${location.href.slice(0, -1)}${url}`
+    return `${location.href.slice(0, -1)}${url}`
+  }
 
-    navigator.clipboard.writeText(fullUrl)
+  function handleUrl (file: FileType) {
+    const url = getUrl(file)
+
+    open(url, '_blank')
+  }
+
+  function handleCopy (file: FileType) {
+    const url = getUrl(file)
+
+    navigator.clipboard.writeText(url)
     Notification.info({
       title: 'Copied to Clipboard',
-      description: <a href={fullUrl}>{fullUrl}</a>
+      description: <a href={url}>{url}</a>
     })
   }
 
@@ -33,6 +43,7 @@ const Upload: React.FC = props => {
     draggable: true,
     fileList: list,
     onChange: setList,
+    listType: 'picture-text',
 
     onSuccess (response: { filehash?: string, filename?: string }, file) {
       const index = getFileIndex(file)
@@ -43,10 +54,14 @@ const Upload: React.FC = props => {
     },
 
     renderFileInfo (file) {
+      const disabled = file.status !== 'finished'
       return (
         <div>
-          <span>{file.name}</span>
-          <IconButton disabled={file.status !== 'finished'} onClick={() => handleUrl(file)} appearance="subtle" icon={<Icon icon="link" />} circle size="xs" />
+          <span style={{marginRight: '10px'}}>{file.name}</span>
+          <span style={{float: "right"}}>
+            <IconButton style={{marginLeft: '10px'}} disabled={disabled} appearance="primary" onClick={() => handleUrl(file)} icon={<Icon icon="link" />}>Open URL</IconButton>
+            <IconButton style={{marginLeft: '10px'}} disabled={disabled} appearance="primary" onClick={() => handleCopy(file)} icon={<Icon icon="copy" />}>Copy URL</IconButton>
+          </span>
         </div>
       )
     }
