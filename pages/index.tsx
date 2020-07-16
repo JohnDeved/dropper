@@ -75,7 +75,7 @@ const Upload: React.FC = props => {
   )
 }
 
-export default function Home() {
+export default function () {
   return (
     <div data-container>
       <Head>

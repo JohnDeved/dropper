@@ -1,21 +1,17 @@
 import express from 'express'
-import Next from 'next'
 import { serve } from './modules/rclone'
 import upload from './routes/upload'
 import stream from './routes/stream'
-import { dev } from './modules/config'
 import * as Sentry from '@sentry/node';
+import { nextjs, handle } from './modules/next';
 
 Sentry.init({
   dsn: 'https://0ec6c589070e455c971972cb634fb8fc@sentry.up1.dev/4'
 })
 
-const next = Next({ dev })
-const handle = next.getRequestHandler()
-
 serve()
 
-next.prepare().then(() => {
+nextjs.prepare().then(() => {
   const app = express()
 
   app.use('/upload', upload)
