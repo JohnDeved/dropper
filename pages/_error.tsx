@@ -1,7 +1,6 @@
 import { NextPage } from 'next'
 
 import 'rsuite/lib/styles/themes/dark/index.less'
-import './_error.sass'
 
 interface IProps {
   statusCode: number

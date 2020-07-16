@@ -4,7 +4,7 @@ import { Uploader, UploaderProps, IconButton, Icon, Notification } from 'rsuite'
 import { FileType } from 'rsuite/lib/Uploader'
 
 import 'rsuite/lib/styles/themes/dark/index.less'
-import './index.sass'
+import './style.sass'
 
 const Upload: React.FC = props => {
   const [list, setList] = useState<FileType[]>([])
