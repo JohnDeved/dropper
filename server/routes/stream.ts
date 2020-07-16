@@ -1,7 +1,6 @@
 import express from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import { postModel } from '../modules/mongo'
-import { send } from 'process'
 
 const router = express.Router()
 
