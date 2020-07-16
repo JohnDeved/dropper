@@ -82,7 +82,7 @@ export default function () {
         <title>Dropper</title>
       </Head>
 
-      <div style={{marginBottom: 20, textAlign: 'center', fontFamily: 'Poppins'}}>
+      <div style={{marginBottom: 30, textAlign: 'center', fontFamily: 'Poppins'}}>
         <h1>Dropper</h1>
         <p style={{fontWeight: 'lighter'}}>easy file uploads</p>
       </div>
