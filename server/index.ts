@@ -1,10 +1,13 @@
 import express from 'express'
-import path from 'path'
 import Next from 'next'
 import { serve } from './modules/rclone'
 import upload from './routes/upload'
 import stream from './routes/stream'
 import { dev } from './modules/config'
+
+Sentry.init({
+  dsn: 'https://0ec6c589070e455c971972cb634fb8fc@sentry.up1.dev/4'
+})
 
 const next = Next({ dev })
 const handle = next.getRequestHandler()
