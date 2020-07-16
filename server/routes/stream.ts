@@ -1,6 +1,7 @@
 import express from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import { postModel } from '../modules/mongo'
+import { send } from 'process'
 
 const router = express.Router()
 
@@ -8,8 +9,10 @@ const proxy = createProxyMiddleware({
   target: 'http://127.0.0.1:8080',
   changeOrigin: true,
   pathRewrite: { '^/stream': '/' },
-  onProxyRes (proxyRes, req) {
-    const { filename } = req.params
+  onProxyRes (proxyRes, req, res) {
+    const { filename, inDb } = req.params
+
+    if (inDb && proxyRes.statusCode === 404) return res.send('File is still beeing Processed')
     if (filename) proxyRes.headers['content-disposition'] = `inline; filename=${filename}`
   }
 })
@@ -25,6 +28,7 @@ router.get('/:filename', async (req, res, next) => {
   await post.save()
 
   req.params.filename = post.filename
+  req.params.inDb = 'true'
   next()
 }, proxy)
 
