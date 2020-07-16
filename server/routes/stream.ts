@@ -26,7 +26,7 @@ router.get('/:filename', async (req, res, next) => {
   if (!exist) return nextjs.render404(req, res)
 
   const post = await postModel.findOne({ _id: req.params.filename })
-  const response = await fetch(`${serveUrl}/${filename}`, {method: 'HEAD'})
+  const response = await fetch(`${serveUrl}/${filename}`, { method: 'HEAD' })
 
   if (!response.ok && post) {
     res.statusMessage = 'This file is still beeing processed.'
