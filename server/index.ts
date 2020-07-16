@@ -1,5 +1,5 @@
 import express from 'express'
-import * as path from 'path'
+import path from 'path'
 import Next from 'next'
 import { serve } from './modules/rclone'
 import upload from './routes/upload'

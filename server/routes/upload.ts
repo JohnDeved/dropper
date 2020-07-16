@@ -3,7 +3,7 @@ import * as crypto from 'crypto'
 import * as mime from 'mime-types'
 import base64url from "base64url"
 import Busboy from 'busboy'
-import * as express from 'express'
+import express from 'express'
 import { move } from '../modules/rclone'
 import { postModel } from '../modules/mongo'
 

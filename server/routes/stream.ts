@@ -1,4 +1,4 @@
-import * as express from 'express'
+import express from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import { postModel } from '../modules/mongo'
 
@@ -16,10 +16,10 @@ const proxy = createProxyMiddleware({
 
 router.get('/:filename', async (req, res, next) => {
   const { filename } = req.params
-  if (!filename) return
+  if (!filename) return next()
 
   const post = await postModel.findOne({ _id: req.params.filename })
-  if (!post) return
+  if (!post) return next()
 
   post.downloads++
   await post.save()
