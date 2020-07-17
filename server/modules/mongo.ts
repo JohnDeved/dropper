@@ -7,15 +7,18 @@ mongoose.connect('mongodb://undefined:oekqkQo8Oa1XXtbe@db.up1.dev:32768/data', {
 })
 
 @modelOptions({ schemaOptions: { collection: 'dropper' } })
-export class PostClass {
+export class FileClass {
   @prop()
   _id: string
 
   @prop()
   filename: string
 
+  @prop()
+  length?: number
+
   @prop({ default: 0 })
   downloads?: number
 }
 
-export const postModel = getModelForClass(PostClass, { schemaOptions: { _id: false } })
+export const fileModel = getModelForClass(FileClass, { schemaOptions: { _id: false } })
