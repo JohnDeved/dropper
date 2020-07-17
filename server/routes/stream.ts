@@ -6,7 +6,6 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
 import { fileModel } from '../modules/mongo'
 import { nextjs } from '../modules/next'
 import { exists, move } from '../modules/rclone'
-import next from 'next'
 
 const fsExists = promisify(fs.exists)
 const router = express.Router()

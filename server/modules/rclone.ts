@@ -4,7 +4,7 @@ import { dev } from './config'
 const rclone = dev ? 'rclone' : './rclone'
 
 export function serve () {
-  spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:'])
+  spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:', '--poll-interval', '5s'])
 }
 
 export function move (path: string) {

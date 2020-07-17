@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 import base64url from "base64url"
 import Busboy from 'busboy'
-import express, { RequestHandler } from 'express'
+import express from 'express'
 import { move } from '../modules/rclone'
 import { fileModel } from '../modules/mongo'
 import parseFile from 'parse-filepath'
