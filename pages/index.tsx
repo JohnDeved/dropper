@@ -35,7 +35,7 @@ export default function () {
         <p style={{fontWeight: 'lighter'}}>easy file uploads</p>
       </div>
 
-      <Dashboard uppy={uppy} theme="dark"></Dashboard>
+      <Dashboard uppy={uppy} theme="dark" showProgressDetails={true} proudlyDisplayPoweredByUppy={false} width="100%" height="calc(100vh - 142px)" hideUploadButton={false}></Dashboard>
     </div>
   )
 }
