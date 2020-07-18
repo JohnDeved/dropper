@@ -40,7 +40,13 @@ export default function () {
         <p style={{fontWeight: 'lighter'}}>easy file uploads</p>
       </div>
 
-      <Dashboard uppy={uppy} theme="dark" showProgressDetails={true} proudlyDisplayPoweredByUppy={false} width="100%" height="calc(100vh - 142px)" hideUploadButton={false}></Dashboard>
+      <Dashboard uppy={uppy} theme="dark" showProgressDetails={true} proudlyDisplayPoweredByUppy={false} width="100%" height="calc(100vh - 152px)" hideUploadButton={false}></Dashboard>
+
+      <footer style={{ fontSize: 10, display: 'flex', justifyContent: 'center' }}>
+        <a href="/tos.txt">Terms of Service</a>
+        <span style={{margin: '0 5px'}}>|</span>
+        <a href="/privacy.txt">Privacy Policy</a>
+      </footer>
     </div>
   )
 }
