@@ -84,6 +84,7 @@ router.get('/:filename', async (req, res, next) => {
   const response = await fetch(`${serveUrl}/${filename}`, { method: 'HEAD' })
 
   if (!response.ok && file) {
+    res.statusCode = 425
     res.statusMessage = 'This file is still beeing processed.'
     return nextjs.render(req, res, '/_error')
   }
