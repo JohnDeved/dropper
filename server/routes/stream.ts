@@ -72,6 +72,7 @@ const proxy = createProxyMiddleware({
   async onProxyRes (proxyRes, req) {
     const { filename } = req.params
     if (filename) proxyRes.headers['content-disposition'] = `inline; filename=${filename}`
+    proxyRes.headers['cache-control'] = 'public'
   }
 })
 
