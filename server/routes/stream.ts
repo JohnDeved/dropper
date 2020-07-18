@@ -21,6 +21,7 @@ router.patch('/:filename', async (req, res) => {
   if (!await fsExists(path)) res.sendStatus(404)
 
   res.setHeader('Tus-Resumable', '1.0.0')
+  res.setHeader('Cache-Control', 'no-store')
   res.setHeader('Upload-Offset', total)
 
   const stream = fs.createWriteStream(path, { start: offset, flags: 'r+' })
@@ -45,6 +46,7 @@ router.delete('/:filename', async (req, res) => {
   await fileModel.deleteOne({ _id: filename })
 
   res.setHeader('Tus-Resumable', '1.0.0')
+  res.setHeader('Cache-Control', 'no-store')
   res.sendStatus(204)
 })
 

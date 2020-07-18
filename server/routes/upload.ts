@@ -24,6 +24,7 @@ router.post('/xhr', (req, res) => {
 
     busboy.on('finish', async () => {
       await move(path)
+      res.setHeader('Cache-Control', 'no-store')
       res.json({ filehash, filename })
     })
   })
@@ -63,6 +64,7 @@ router.post('/tus', async (req, res) => {
   fs.promises.writeFile(`tmp/${filehash}`, Buffer.from([]))
 
   res.setHeader('Tus-Resumable', '1.0.0')
+  res.setHeader('Cache-Control', 'no-store')
   res.setHeader('Location', `/stream/${filehash}`)
   res.sendStatus(201)
 })
