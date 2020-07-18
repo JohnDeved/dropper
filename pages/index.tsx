@@ -23,6 +23,11 @@ uppy.use(Tus, {
   chunkSize: 5e+7
 })
 
+uppy.on('upload-success', (file, body: { uploadURL: string }) => {
+  const uploadURL = body.uploadURL.replace('upload/tus', 'stream')
+  uppy.setFileState(file.id, { uploadURL })
+})
+
 export default function () {
   return (
     <div data-container>
