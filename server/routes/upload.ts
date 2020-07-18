@@ -14,17 +14,20 @@ const router = express.Router()
 router.post('/xhr', (req, res) => {
   const busboy = new Busboy({ headers: req.headers })
 
+  const length = Number(req.get('Content-Length'))
+  if (length > 1e+8) return res.sendStatus(400)
+
   busboy.on('file', async (key, file, filename) => {
     let filehash = base64url(crypto.randomBytes(5))
     const { ext } = parseFile(filename)
     if (ext) filehash += ext
 
-    await fileModel.create({ _id: filehash, filename })
 
     const path = `tmp/${filehash}`
     file.pipe(fs.createWriteStream(path))
 
     busboy.on('finish', async () => {
+      await fileModel.create({ _id: filehash, filename, length })
       await move(path)
       res.setHeader('Cache-Control', 'no-store')
       res.json({ filehash, filename })
