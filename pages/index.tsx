@@ -24,7 +24,7 @@ uppy.use(Tus, {
 })
 
 uppy.on('upload-success', (file, body: { uploadURL: string }) => {
-  const uploadURL = body.uploadURL.replace('upload/tus', 'stream')
+  const uploadURL = location.href.slice(0,-1) + body.uploadURL.replace('upload/tus', 'stream')
   uppy.setFileState(file.id, { uploadURL })
 })
 
