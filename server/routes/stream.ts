@@ -60,7 +60,7 @@ router.head('/:filename', async (req, res, next) => {
 
   res.setHeader('Upload-Length', length)
   res.setHeader('Upload-Offset', size)
-  res.setHeader('Cache-Control', 'no-store')
+  res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
   res.setHeader('Tus-Resumable', '1.0.0')
   res.sendStatus(204)
 })
