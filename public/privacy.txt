@@ -49,15 +49,6 @@ In Short: Some information – such as IP address and/or browser and device char
 We automatically collect certain information when you visit, use or navigate the Sites. This information does not reveal your specific identity (like your name or contact information) but may include device and usage information, such as your IP address, browser and device characteristics, operating system, language preferences, referring URLs, device name, country, location, information about how and when you use our Sites and other technical information. This information is primarily needed to maintain the security and operation of our Sites, and for our internal analytics and reporting purposes.
 
 
-
-Information collected from other sources
-
-In Short: We may collect limited data from public databases, marketing partners, and other outside sources.
-
-We may obtain information about you from other sources, such as public databases, joint marketing partners, as well as from other third parties. Examples of the information we receive from other sources include: social media profile information; marketing leads and search results and links, including paid listings (such as sponsored links).
-
-
-
 2. HOW DO WE USE YOUR INFORMATION?
 
 In Short: We process your information for purposes based on legitimate business interests, the fulfillment of our contract with you, compliance with our legal obligations, and/or your consent.
@@ -100,16 +91,16 @@ Business Transfers. We may share or transfer your information in connection with
 Affiliates. We may share your information with our affiliates, in which case we will require those affiliates to honor this privacy policy. Affiliates include our parent company and any subsidiaries, joint venture partners or other companies that we control or that are under common control with us.
 
 Business Partners. We may share your information with our business partners to offer you certain products, services or promotions.
+
+
 4. WHO WILL YOUR INFORMATION BE SHARED WITH?
 
 
 In Short:  We only share information with the following third parties.
 
 We only share and disclose your information with the following third parties. We have categorized each party so that you may be easily understand the purpose of our data collection and processing practices. If we have processed your data based on your consent and you wish to revoke your consent, please contact us.
-Data Backup and Security
-Google Drive Backup
-Website Testing
-Cloudflare
+Data Backup and Security: Google Drive Backup
+Website Performance: Cloudflare
 
 
 
@@ -117,7 +108,7 @@ Cloudflare
 
 In Short: We keep your information for as long as necessary to fulfill the purposes outlined in this privacy policy unless otherwise required by law.
 
-We will only keep your personal information for as long as it is necessary for the purposes set out in this privacy policy, unless a longer retention period is required or permitted by law (such as tax, accounting or other legal requirements). No purpose in this policy will require us keeping your personal information for longer than __________.
+We will only keep your personal information for as long as it is necessary for the purposes set out in this privacy policy, unless a longer retention period is required or permitted by law (such as tax, accounting or other legal requirements).
 
 When we have no ongoing legitimate business need to process your personal information, we will either delete or anonymize it, or, if this is not possible (for example, because your personal information has been stored in backup archives), then we will securely store your personal information and isolate it from any further processing until deletion is possible.
 
