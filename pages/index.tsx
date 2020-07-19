@@ -1,14 +1,11 @@
 import React from 'react'
 import Head from 'next/head'
 import { Dashboard } from '@uppy/react'
-import XHRUpload from '@uppy/xhr-upload'
 import Tus from '@uppy/tus'
 import Uppy from '@uppy/core'
 
-import 'rsuite/lib/styles/themes/dark/index.less'
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
-import './style.sass'
 
 const uppy = Uppy({
   meta: { type: 'avatar' },

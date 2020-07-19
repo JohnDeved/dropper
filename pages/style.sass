@@ -23,20 +23,27 @@
 
 .rs-uploader-picture-text
   .rs-uploader-file-item-preview
-    display: none
+    display: none !important
 
   .rs-uploader-file-item
-    padding-left: 0
+    padding-left: 0 !important
 
   .rs-uploader-file-item-icon-loading
-    display: none
+    display: none !important
 
   .rs-uploader-file-item-progress
-    padding-left: 0
+    padding-left: 0 !important
 
 [data-uppy-theme="dark"]
   .uppy-Dashboard-inner, .uppy-DashboardContent-bar, .uppy-StatusBar
-    background-color: #11171f
+    background-color: #11171f !important
 
   .uppy-Dashboard-inner
-    border: unset
+    border: unset !important
+
+video.embed
+  height: 100vh
+  width: 100%
+
+embed.embed
+  width: 100%
