@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
       title: file.filename,
       provider_name: "Dropper",
       provider_url: 'https://dropper.link/',
-      html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
+      html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
       url: fileUrl,
       height: Number(maxheight) || 1080,
       width:  Number(maxwidth) || 1920
@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
       title: file.filename,
       provider_name: "Dropper",
       provider_url: 'https://dropper.link/',
-      html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
+      html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
       url: fileUrl,
       height: Number(maxheight) || 1080,
       width: Number(maxwidth) || 1920
@@ -54,7 +54,7 @@ router.get('/', async (req, res) => {
     title: file.filename,
     provider_name: "Dropper",
     provider_url: 'https://dropper.link/',
-    html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
+    html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
     url: fileUrl,
     height: Number(maxheight) || 1080,
     width: Number(maxwidth) || 1920,
