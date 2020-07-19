@@ -13,7 +13,14 @@ const proxy = createProxyMiddleware({
   pathRewrite: { '^/stream': '/' },
   async onProxyRes (proxyRes, req) {
     const { filename } = req.params
-    if (filename) proxyRes.headers['content-disposition'] = `inline; filename=${filename}`
+
+    if (['text/html'].includes(proxyRes.headers['content-type'])) {
+      proxyRes.headers['content-disposition'] = 'attachment;'
+    } else {
+      proxyRes.headers['content-disposition'] = 'inline;'
+    }
+
+    if (filename) proxyRes.headers['content-disposition'] += `filename=${filename}`
     proxyRes.headers['cache-control'] = 'public'
   }
 })
