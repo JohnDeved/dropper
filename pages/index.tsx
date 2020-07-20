@@ -39,7 +39,16 @@ export default function () {
         </div>
       </div>
 
-      <Dashboard uppy={uppy} theme="dark" showProgressDetails={true} proudlyDisplayPoweredByUppy={false} width="100%" height="calc(100vh - 110px)" hideUploadButton={false}></Dashboard>
+      <div className="upload">
+        <Dashboard
+          uppy={uppy}
+          theme="dark"
+          showProgressDetails={true}
+          proudlyDisplayPoweredByUppy={false}
+          width="100%" height="calc(100vh - 110px)"
+          hideUploadButton={false}
+        />
+      </div>
 
       <footer>
         <a href="/tos.txt">Terms of Service</a>
