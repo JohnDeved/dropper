@@ -28,10 +28,6 @@ uppy.on('upload-success', (file, body: { uploadURL: string }) => {
 export default function () {
   return (
     <div className="index">
-      <Head>
-        <title>Dropper</title>
-      </Head>
-
       <div className="logo">
         <div>
           <h1>Dropper</h1>
