@@ -27,7 +27,7 @@ router.post('/xhr', (req, res) => {
     file.pipe(fs.createWriteStream(path))
 
     busboy.on('finish', async () => {
-      await fileModel.create({ _id: filehash, filename, length })
+      await fileModel.create({ _id: filehash, filename, uploaded: true, length })
       await move(path)
       res.setHeader('Cache-Control', 'no-store')
       res.json({ filehash, filename })
@@ -93,7 +93,9 @@ router.patch('/tus/:filename', async (req, res) => {
     const file = await fileModel.findOne({ _id: filename })
 
     if (file.length === total) {
+      file.uploaded = true
       await move(path)
+      await file.save()
     }
 
     res.sendStatus(204)

@@ -44,6 +44,7 @@ router.get('/:filename', async (req, res, next) => {
   if (!file) return next()
 
   file.downloads++
+  file.uploaded = true
   await file.save()
 
   req.params.filename = file.filename

@@ -17,6 +17,12 @@ export class FileClass {
   @prop()
   length?: number
 
+  @prop({ default: () => new Date() })
+  date?: Date
+
+  @prop({ default: false })
+  uploaded?: boolean
+
   @prop({ default: 0 })
   downloads?: number
 }
