@@ -30,7 +30,7 @@ export default function () {
     <div className="index">
       <div className="logo">
         <div>
-          <h1>Dropper</h1>
+          <img src="/logo.svg" alt="Dropper Logo"/>
           <p>easy file uploads</p>
         </div>
       </div>
