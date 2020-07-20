@@ -3,7 +3,7 @@
 *
   font-family: Poppins
 
-[data-error]
+.error
   height: 100vh
   display: flex
   align-items: center
@@ -18,10 +18,37 @@
     padding: 10px 20px
     border-right: solid white .5px
 
-[data-container]
-  padding: 15px
+video.embed
+  height: 100vh
+  width: 100%
 
-.rs-uploader-picture-text
+embed.embed
+  width: 100%
+
+.index
+  height: 100vh
+  display: flex
+  flex-direction: column
+  justify-content: space-evenly
+
+  .logo
+    display: flex
+    flex-direction: column
+    justify-content: center
+    text-align: center
+
+    h1
+      line-height: 1.2
+
+    p
+      font-weight: lighter
+
+  footer
+    font-size: 10px
+    display: flex
+    justify-content: center
+
+  .rs-uploader-picture-text
   .rs-uploader-file-item-preview
     display: none !important
 
@@ -34,16 +61,9 @@
   .rs-uploader-file-item-progress
     padding-left: 0 !important
 
-[data-uppy-theme="dark"]
-  .uppy-Dashboard-inner, .uppy-DashboardContent-bar, .uppy-StatusBar
-    background-color: #11171f !important
+  [data-uppy-theme="dark"]
+    .uppy-Dashboard-inner, .uppy-DashboardContent-bar, .uppy-StatusBar
+      background-color: #11171f !important
 
-  .uppy-Dashboard-inner
-    border: unset !important
-
-video.embed
-  height: 100vh
-  width: 100%
-
-embed.embed
-  width: 100%
+    .uppy-Dashboard-inner
+      border: unset !important

@@ -9,7 +9,7 @@ interface IProps {
 
 const Error: NextPage<IProps> = ({ statusCode, statusMessage }) => {
   return (
-    <div data-error>
+    <div className="error">
       <h3>Error {statusCode}</h3>
       <p>{statusMessage || 'an error occured'}</p>
     </div>

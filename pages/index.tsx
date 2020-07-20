@@ -27,19 +27,21 @@ uppy.on('upload-success', (file, body: { uploadURL: string }) => {
 
 export default function () {
   return (
-    <div data-container>
+    <div className="index">
       <Head>
         <title>Dropper</title>
       </Head>
 
-      <div style={{marginBottom: 30, textAlign: 'center', fontFamily: 'Poppins'}}>
-        <h1>Dropper</h1>
-        <p style={{fontWeight: 'lighter'}}>easy file uploads</p>
+      <div className="logo">
+        <div>
+          <h1>Dropper</h1>
+          <p>easy file uploads</p>
+        </div>
       </div>
 
-      <Dashboard uppy={uppy} theme="dark" showProgressDetails={true} proudlyDisplayPoweredByUppy={false} width="100%" height="calc(100vh - 152px)" hideUploadButton={false}></Dashboard>
+      <Dashboard uppy={uppy} theme="dark" showProgressDetails={true} proudlyDisplayPoweredByUppy={false} width="100%" height="calc(100vh - 110px)" hideUploadButton={false}></Dashboard>
 
-      <footer style={{ fontSize: 10, display: 'flex', justifyContent: 'center' }}>
+      <footer>
         <a href="/tos.txt">Terms of Service</a>
         <span style={{margin: '0 5px'}}>|</span>
         <a href="/privacy.txt">Privacy Policy</a>
