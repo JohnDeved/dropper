@@ -2,14 +2,15 @@ import { useRouter } from 'next/router'
 import { isArray } from 'util'
 import { useRef, useEffect } from 'react'
 import Head from 'next/head'
-import { GetServerSideProps, NextPage, InferGetServerSidePropsType } from 'next'
 import { fileModel, FileClass } from '../../server/modules/mongo'
+import { GetServerSideProps } from 'next'
 
-export const getServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const { filename } = context.params
 
-  if (!isArray(filename)) {
+  if (!isArray(filename) && filename) {
     const files = await fileModel.findOne({ _id: filename })
+    if (!files) return
     const props: typeof files = files.toObject()
     return { props: { ...props, date: props.date.getTime() } }
   }
