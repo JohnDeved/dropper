@@ -2,8 +2,20 @@ import { useRouter } from 'next/router'
 import { isArray } from 'util'
 import { useRef, useEffect } from 'react'
 import Head from 'next/head'
+import { GetServerSideProps, NextPage, InferGetServerSidePropsType } from 'next'
+import { fileModel, FileClass } from '../../server/modules/mongo'
 
-export default function () {
+export const getServerSideProps = async (context) => {
+  const { filename } = context.params
+
+  if (!isArray(filename)) {
+    const files = await fileModel.findOne({ _id: filename })
+    const props: typeof files = files.toObject()
+    return { props: { ...props, date: props.date.getTime() } }
+  }
+}
+
+export default ({ filename: name }: FileClass) => {
   const router = useRouter()
   const video = useRef()
 
@@ -29,6 +41,9 @@ export default function () {
 
   return <div>
     <Head>
+      <meta property="og:title" content={name} />
+      <meta property="og:type" content="video.other" />
+      <meta property="og:url" content={`http://dropper.link${streamRoute}`} />
       <style>{`
         #__next {
           height: 100%;

@@ -28,6 +28,13 @@ uppy.on('upload-success', (file, body: { uploadURL: string }) => {
 export default function () {
   return (
     <div className="index">
+      <Head>
+        <meta property="og:type" content="website"/>
+        <meta property="og:url" content="https://dropper.link/"/>
+        <meta property="og:title" content="Dropper"/>
+        <meta property="og:description" content="Easy file uploades, without limits."/>
+        <meta property="og:image" content=""/>
+      </Head>
       <div className="logo">
         <div>
           <h1>Dropper</h1>
