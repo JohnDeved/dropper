@@ -1,8 +1,8 @@
 import React from 'react'
-import Head from 'next/head'
 import { Dashboard } from '@uppy/react'
 import Tus from '@uppy/tus'
 import Uppy from '@uppy/core'
+import { Notification } from 'rsuite'
 
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
@@ -23,6 +23,16 @@ uppy.use(Tus, {
 uppy.on('upload-success', (file, body: { uploadURL: string }) => {
   const uploadURL = location.href.slice(0,-1) + body.uploadURL.replace('upload/tus', 'stream')
   uppy.setFileState(file.id, { uploadURL })
+})
+
+uppy.on('complete', result => {
+  const clipboard = result.successful.map(file => `${file.uploadURL} (${file.name})`).join('\n')
+
+  navigator.clipboard.writeText(clipboard)
+  Notification.success({
+    title: 'Copied to Clipboard',
+    description: clipboard
+  })
 })
 
 export default function () {
