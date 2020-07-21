@@ -26,7 +26,11 @@ uppy.on('upload-success', (file, body: { uploadURL: string }) => {
 })
 
 uppy.on('complete', result => {
-  const clipboard = result.successful.map(file => `${file.uploadURL} (${file.name})`).join('\n')
+  const clipboard = result.successful.map((file, i, arr) => {
+    let text = file.uploadURL
+    if (arr.length > 1) text += ` (${file.name})`
+    return text
+  }).join('\n')
 
   navigator.clipboard.writeText(clipboard)
   Notification.success({
