@@ -10,7 +10,6 @@ const serveUrl = 'http://127.0.0.1:8080'
 const proxy = createProxyMiddleware({
   target: serveUrl,
   changeOrigin: true,
-  pathRewrite: { '^/stream': '/' },
   async onProxyRes (proxyRes, req) {
     const { filename } = req.params
 
@@ -33,7 +32,7 @@ router.get('/:filename', async (req, res, next) => {
   if (!exist) return nextjs.render404(req, res)
 
   const file = await fileModel.findOne({ _id: req.params.filename })
-  const response = await fetch(`${serveUrl}/${filename}`, { method: 'HEAD' })
+  const response = await fetch(`${serveUrl}/stream/${filename}`, { method: 'HEAD' })
 
   if (!response.ok && file) {
     res.statusCode = 425

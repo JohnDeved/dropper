@@ -4,7 +4,11 @@ import { dev } from './config'
 const rclone = dev ? 'rclone' : './rclone'
 
 export function serve () {
-  spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:', '--poll-interval', '5s'])
+  const log = chunk => process.stdout.write(chunk.toString())
+
+  const serve = spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:', '--baseurl', '/stream', '--poll-interval', '5s', '-v'])
+  serve.stdout.on('data', log)
+  serve.stderr.on('data', log)
 }
 
 export function move (path: string) {
