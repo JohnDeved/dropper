@@ -17,7 +17,7 @@ uppy.use(Tus, {
   resume: true,
   autoRetry: true,
   retryDelays: [0, 1000, 3000, 5000],
-  chunkSize: 5e+7
+  chunkSize: 1e+7
 })
 
 uppy.on('upload-success', (file, body: { uploadURL: string }) => {
