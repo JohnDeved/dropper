@@ -5,10 +5,13 @@ import stream from './routes/stream'
 import * as Sentry from '@sentry/node';
 import { nextjs, handle } from './modules/next';
 import oembed from './routes/oembed';
+import { dev } from './modules/config';
 
-Sentry.init({
-  dsn: 'https://0ec6c589070e455c971972cb634fb8fc@sentry.up1.dev/4'
-})
+if (!dev) {
+  Sentry.init({
+    dsn: 'https://0ec6c589070e455c971972cb634fb8fc@sentry.up1.dev/4'
+  })
+}
 
 serve()
 
