@@ -1,10 +1,17 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
+importScripts('https://unpkg.com/dexie@3.0.1/dist/dexie.js')
 
-function getExtraBytes (length) {
+// import {Dexie} from 'dexie'
+
+// var db = new Dexie('dropper-db')
+
+// db
+
+function getExtraBytes (length: number) {
   return Math.ceil(length / 1e7) * 16
 }
 
-function getEncryptedLength (length) {
+function getEncryptedLength (length: number) {
   return length + getExtraBytes(length)
 }
 
@@ -14,8 +21,8 @@ workbox.routing.registerRoute(/upload\/tus/, async route => {
   const length = Number(req.headers.get('Upload-Length'))
   const cryptLength = getEncryptedLength(length)
 
-  req.headers.set('Upload-Length', cryptLength)
-  req.headers.set('Dropper-Encrypted', 'true')
+  req.headers.set('Upload-Length', String(cryptLength))
+  req.headers.set('Dropper-Encrypted', '1.0')
 
   return await fetch(req)
 }, 'POST')
@@ -32,12 +39,15 @@ workbox.routing.registerRoute(/upload\/tus/, async route => {
   const offset = Number(request.headers.get('Upload-Offset'))
   if (offset) {
     const extraBytes = getExtraBytes(offset)
-    req.headers.set('Upload-Offset', offset + extraBytes)
+    req.headers.set('Upload-Offset', String(offset + extraBytes))
   }
 
   const response = await fetch(new Request(req, { body: encrypt }))
-  const res = new Response(response)
-  res.headers.set('Upload-Offset', chunk.byteLength + offset)
+  const res = new Response(null, {
+    headers: response.headers,
+    status: response.status
+  })
+  res.headers.set('Upload-Offset', String(chunk.byteLength + offset))
 
   return res
 }, 'PATCH')

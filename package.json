@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon",
-    "build": "next build && tsc --project tsconfig.server.json",
+    "dev": "tsc --project worker/tsconfig.json --watch & nodemon",
+    "build": "npm run build-worker && next build && tsc --project tsconfig.server.json",
+    "build-worker": "tsc --project worker/tsconfig.json",
     "start": "cross-env NODE_ENV=production node dist/index.js"
   },
   "author": "",
