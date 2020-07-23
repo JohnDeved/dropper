@@ -1,8 +1,11 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
 
+function getExtraBytes (length) {
+  return Math.ceil(length / 1e7) * 16
+}
+
 function getEncryptedLength (length) {
-  const chunks = Math.ceil(length / 1e7)
-  return length + chunks * 16
+  return length + getExtraBytes(length)
 }
 
 workbox.routing.registerRoute(/upload\/tus/, async route => {
@@ -26,13 +29,15 @@ workbox.routing.registerRoute(/upload\/tus/, async route => {
   const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, ['encrypt'])
   const encrypt = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, chunk)
 
+  const offset = Number(request.headers.get('Upload-Offset'))
+  if (offset) {
+    const extraBytes = getExtraBytes(offset)
+    req.headers.set('Upload-Offset', offset + extraBytes)
+  }
+
   const response = await fetch(new Request(req, { body: encrypt }))
   const res = new Response(response)
-
-  const offset = Number(request.headers.get('Upload-Offset'))
-  const total = chunk.byteLength + offset
-
-  res.headers.set('Upload-Offset', total)
+  res.headers.set('Upload-Offset', chunk.byteLength + offset)
 
   return res
 }, 'PATCH')
