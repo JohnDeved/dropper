@@ -1,11 +1,18 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
-importScripts('https://unpkg.com/dexie@3.0.1/dist/dexie.js')
+importScripts("https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js")
 
-// import {Dexie} from 'dexie'
+function getDB () {
+  return idb.openDB<typeof idb.KeysDB>('dropper', 1, {
+    upgrade(db) { db.createObjectStore('cryptkeys') }
+  })
+}
 
-// var db = new Dexie('dropper-db')
-
-// db
+function exportCryptKey (rawKey: ArrayBuffer, iv: Uint8Array) {
+  const raw = new Uint8Array(rawKey)
+  const full = Uint8Array.from([...raw, ...iv])
+  console.log({ raw, iv, full })
+  return btoa(String.fromCharCode(...full))
+}
 
 function getExtraBytes (length: number) {
   return Math.ceil(length / 1e7) * 16
@@ -24,17 +31,30 @@ workbox.routing.registerRoute(/upload\/tus/, async route => {
   req.headers.set('Upload-Length', String(cryptLength))
   req.headers.set('Dropper-Encrypted', '1.0')
 
-  return await fetch(req)
+  const res = await fetch(req)
+  const filename = res.headers.get('Location').replace('/upload/tus/', '')
+
+  const iv = crypto.getRandomValues(new Uint8Array(4))
+  const cryptKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, ['encrypt'])
+  const rawKey = await crypto.subtle.exportKey('raw', cryptKey)
+
+  const db = await getDB()
+  await db.put('cryptkeys', { iv, cryptKey, rawKey }, filename)
+
+  return res
 }, 'POST')
 
 workbox.routing.registerRoute(/upload\/tus/, async route => {
-  const { request } = route
+  const { request, url } = route
   const req = new Request(request.clone())
   const chunk = await request.arrayBuffer()
 
-  const iv = crypto.getRandomValues(new Uint8Array(4))
-  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, ['encrypt'])
-  const encrypt = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, chunk)
+  const filename = url.pathname.replace('/upload/tus/', '')
+
+  const db = await getDB()
+  const { cryptKey, iv, rawKey } = await db.get('cryptkeys', filename)
+  const encrypt = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, cryptKey, chunk)
+  req.headers.set('Cryptkey', exportCryptKey(rawKey, iv))
 
   const offset = Number(request.headers.get('Upload-Offset'))
   if (offset) {

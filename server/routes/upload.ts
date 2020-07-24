@@ -1,5 +1,5 @@
-import * as fs from 'fs'
-import * as crypto from 'crypto'
+import fs from 'fs'
+import crypto from 'crypto'
 import base64url from "base64url"
 import Busboy from 'busboy'
 import express from 'express'
@@ -7,15 +7,20 @@ import { move } from '../modules/rclone'
 import { fileModel } from '../modules/mongo'
 import parseFile from 'parse-filepath'
 import { promisify } from 'util'
+import { Transform } from 'stream'
+import BlockStream from 'block-stream2'
+import { Buffer } from 'buffer'
+import { Crypto } from '@peculiar/webcrypto'
 
 const fsExists = promisify(fs.exists)
 const router = express.Router()
+const webcrypto = new Crypto()
 
 router.post('/xhr', (req, res) => {
   const busboy = new Busboy({ headers: req.headers })
 
   const length = Number(req.get('Content-Length'))
-  if (length > 1e+8) return res.sendStatus(400)
+  if (length > 1e8) return res.sendStatus(400)
 
   busboy.on('file', async (key, file, filename) => {
     let filehash = base64url(crypto.randomBytes(5))
@@ -78,6 +83,7 @@ router.patch('/tus/:filename', async (req, res) => {
   const { filename } = req.params
   const length = Number(req.get('Content-Length'))
   const offset = Number(req.get('Upload-Offset'))
+
   const total = offset + length
   const path = `tmp/${filename}`
 
@@ -93,9 +99,30 @@ router.patch('/tus/:filename', async (req, res) => {
     const file = await fileModel.findOne({ _id: filename })
 
     if (file.length === total) {
-      file.uploaded = true
-      await move(path)
-      await file.save()
+      // file.uploaded = true
+      // await move(path)
+      // await file.save()
+
+      const decrypt = new Transform({
+        async transform(chunk: Buffer, encode, next) {
+          const crpytString = req.get('Cryptkey')
+          const cryptBuffer = Buffer.from(crpytString, 'base64')
+          const key = cryptBuffer.slice(0, 16)
+          const iv = cryptBuffer.slice(-4)
+
+          const cryptkey = await webcrypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
+          const decrypt = await webcrypto.subtle.decrypt({ name: "AES-GCM", iv }, cryptkey, chunk)
+
+          this.push(Buffer.from(decrypt))
+
+          next()
+        }
+      })
+
+      fs.createReadStream(path)
+        .pipe<Transform>(new BlockStream({ size: 1e7 + 16, zeroPadding: false }))
+        .pipe(decrypt)
+        .pipe(fs.createWriteStream(path + '_o.mp4'))
     }
 
     res.sendStatus(204)
