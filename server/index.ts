@@ -2,11 +2,11 @@ import express from 'express'
 import { serve } from './modules/rclone'
 import upload from './routes/upload'
 import stream from './routes/stream'
-import * as Sentry from '@sentry/node';
-import { nextjs, handle } from './modules/next';
-import oembed from './routes/oembed';
-import { dev } from './modules/config';
-import crypto from './routes/crypto';
+import * as Sentry from '@sentry/node'
+import { nextjs, handle } from './modules/next'
+import oembed from './routes/oembed'
+import { dev } from './modules/config'
+import crypto from './routes/crypto'
 
 if (!dev) {
   Sentry.init({

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import crypto from 'crypto'
-import base64url from "base64url"
+import base64url from 'base64url'
 import Busboy from 'busboy'
 import express from 'express'
 import { move } from '../modules/rclone'
@@ -9,8 +9,15 @@ import parseFile from 'parse-filepath'
 import { promisify } from 'util'
 import { Buffer } from 'buffer'
 
-const fsExists = promisify(fs.exists)
 const router = express.Router()
+
+function fsExists (path: string) {
+  return new Promise((resolve) => {
+    fs.promises.access(path)
+      .then(() => resolve(true))
+      .catch(() => resolve(false))
+  })
+}
 
 router.post('/xhr', (req, res) => {
   const busboy = new Busboy({ headers: req.headers })
@@ -22,7 +29,6 @@ router.post('/xhr', (req, res) => {
     let filehash = base64url(crypto.randomBytes(5))
     const { ext } = parseFile(filename)
     if (ext) filehash += ext
-
 
     const path = `tmp/${filehash}`
     file.pipe(fs.createWriteStream(path))
@@ -133,6 +139,5 @@ router.head('/tus/:filename', async (req, res, next) => {
   res.setHeader('Tus-Resumable', '1.0.0')
   res.sendStatus(204)
 })
-
 
 export default router

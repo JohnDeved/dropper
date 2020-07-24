@@ -1,4 +1,4 @@
-import { prop, getModelForClass, mongoose, modelOptions } from '@typegoose/typegoose';
+import { prop, getModelForClass, mongoose, modelOptions } from '@typegoose/typegoose'
 
 mongoose.connect('mongodb://undefined:oekqkQo8Oa1XXtbe@db.up1.dev:32768/data', {
   authSource: 'admin',

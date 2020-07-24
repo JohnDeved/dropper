@@ -19,18 +19,17 @@ router.get('/', async (req, res) => {
   const fileUrl = `https://dropper.link/stream/${filename}`
   const embedUrl = `https://dropper.link/embed/${filename}`
 
-
   if (['.mp4', '.webm'].includes(ext)) {
     return res.json({
       version: '1.0',
       type: 'video',
       title: file.filename,
-      provider_name: "Dropper",
+      provider_name: 'Dropper',
       provider_url: 'https://dropper.link/',
       html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
       url: fileUrl,
       height: Number(maxheight) || 1080,
-      width:  Number(maxwidth) || 1920
+      width: Number(maxwidth) || 1920
     })
   }
 
@@ -39,7 +38,7 @@ router.get('/', async (req, res) => {
       version: '1.0',
       type: 'photo',
       title: file.filename,
-      provider_name: "Dropper",
+      provider_name: 'Dropper',
       provider_url: 'https://dropper.link/',
       html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
       url: fileUrl,
@@ -52,14 +51,13 @@ router.get('/', async (req, res) => {
     version: '1.0',
     type: 'rich',
     title: file.filename,
-    provider_name: "Dropper",
+    provider_name: 'Dropper',
     provider_url: 'https://dropper.link/',
     html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
     url: fileUrl,
     height: Number(maxheight) || 1080,
-    width: Number(maxwidth) || 1920,
+    width: Number(maxwidth) || 1920
   })
-
 })
 
 export default router

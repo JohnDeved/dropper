@@ -1,8 +1,6 @@
-import fs from 'fs'
 import express from 'express'
 import fetch from 'node-fetch'
 import { fileModel } from '../modules/mongo'
-import { isString } from 'util'
 import { Transform } from 'stream'
 import BlockStream from 'block-stream2'
 import { Crypto } from '@peculiar/webcrypto'
@@ -15,7 +13,7 @@ router.get('/:filename', async (req, res) => {
   const { filename } = req.params
   const { key: cryptString } = req.query
 
-  if (!isString(cryptString)) return res.sendStatus(400)
+  if (typeof cryptString !== 'string') return res.sendStatus(400)
 
   const response = await fetch(streamUrl + filename)
   if (!response.ok) return res.sendStatus(response.status)
@@ -29,13 +27,13 @@ router.get('/:filename', async (req, res) => {
   if (!hash.equals(compHash)) return res.status(400).send('wrong key')
 
   const decrypt = new Transform({
-    async transform(chunk: Buffer, encode, next) {
+    async transform (chunk: Buffer, _encode, next) {
       const cryptBuffer = Buffer.from(cryptString, 'base64')
       const key = cryptBuffer.slice(0, 16)
       const iv = cryptBuffer.slice(-4)
 
       const cryptkey = await webcrypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
-      const decrypt = await webcrypto.subtle.decrypt({ name: "AES-GCM", iv }, cryptkey, chunk)
+      const decrypt = await webcrypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk)
 
       this.push(Buffer.from(decrypt))
       next()
