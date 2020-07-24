@@ -4,12 +4,13 @@ import Tus from '@uppy/tus'
 import Uppy from '@uppy/core'
 import { Notification } from 'rsuite'
 import { openDB } from 'idb'
+import { KeysDB } from '../types/common'
 
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
 
 function getDB () {
-  return openDB<typeof idb.KeysDB>('dropper', 1, {
+  return openDB<KeysDB>('dropper', 1, {
     upgrade(db) { db.createObjectStore('cryptkeys') }
   })
 }

@@ -1,16 +1,5 @@
-import  { openDB as o, deleteDB as d, wrap as w, unwrap as u, DBSchema } from 'idb'
-
-interface KeysDB extends DBSchema {
-  cryptkeys: {
-    key: string
-    value: {
-      iv: Uint8Array
-      cryptKey: CryptoKey
-      rawKey: ArrayBuffer
-      extKey: string
-    }
-  }
-}
+import { openDB as o, deleteDB as d, wrap as w, unwrap as u } from 'idb'
+import { KeysDB } from '../../types/common'
 
 declare global {
   namespace idb {
