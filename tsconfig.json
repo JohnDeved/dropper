@@ -27,7 +27,8 @@
     "dist",
     ".next",
     "out",
-    "next.config.js"
+    "next.config.js",
+    "worker"
   ],
   "include": [
     "next-env.d.ts",

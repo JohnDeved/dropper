@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsc --project worker/tsconfig.json --watch & nodemon",
-    "build": "npm run build-worker && next build && tsc --project tsconfig.server.json",
-    "build-worker": "tsc --project worker/tsconfig.json",
+    "build": "npm run build-worker && next build && tsc --project tsconfig.server.json --listEmittedFiles",
+    "build-worker": "tsc --project worker/tsconfig.json --listEmittedFiles",
     "start": "cross-env NODE_ENV=production node dist/index.js"
   },
   "author": "",
