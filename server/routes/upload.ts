@@ -7,14 +7,10 @@ import { move } from '../modules/rclone'
 import { fileModel } from '../modules/mongo'
 import parseFile from 'parse-filepath'
 import { promisify } from 'util'
-import { Transform } from 'stream'
-import BlockStream from 'block-stream2'
 import { Buffer } from 'buffer'
-import { Crypto } from '@peculiar/webcrypto'
 
 const fsExists = promisify(fs.exists)
 const router = express.Router()
-const webcrypto = new Crypto()
 
 router.post('/xhr', (req, res) => {
   const busboy = new Busboy({ headers: req.headers })
@@ -64,12 +60,14 @@ function getMetaData (req: express.Request): IUploadMetadata {
 router.post('/tus', async (req, res) => {
   const { filename } = getMetaData(req)
   const length = Number(req.get('Upload-Length'))
+  const vcrypto = req.get('Dropper-Crypto')
+  const keyhash = req.get('Dropper-Hash')
 
   let filehash = base64url(crypto.randomBytes(5))
   const { ext } = parseFile(filename)
   if (ext) filehash += ext
 
-  await fileModel.create({ _id: filehash, filename, length })
+  await fileModel.create({ _id: filehash, filename, length, vcrypto, keyhash })
 
   fs.promises.writeFile(`tmp/${filehash}`, Buffer.from([]))
 
@@ -99,30 +97,9 @@ router.patch('/tus/:filename', async (req, res) => {
     const file = await fileModel.findOne({ _id: filename })
 
     if (file.length === total) {
-      // file.uploaded = true
-      // await move(path)
-      // await file.save()
-
-      const decrypt = new Transform({
-        async transform(chunk: Buffer, encode, next) {
-          const crpytString = req.get('Cryptkey')
-          const cryptBuffer = Buffer.from(crpytString, 'base64')
-          const key = cryptBuffer.slice(0, 16)
-          const iv = cryptBuffer.slice(-4)
-
-          const cryptkey = await webcrypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
-          const decrypt = await webcrypto.subtle.decrypt({ name: "AES-GCM", iv }, cryptkey, chunk)
-
-          this.push(Buffer.from(decrypt))
-
-          next()
-        }
-      })
-
-      fs.createReadStream(path)
-        .pipe<Transform>(new BlockStream({ size: 1e7 + 16, zeroPadding: false }))
-        .pipe(decrypt)
-        .pipe(fs.createWriteStream(path + '_o.mp4'))
+      file.uploaded = true
+      await move(path)
+      await file.save()
     }
 
     res.sendStatus(204)

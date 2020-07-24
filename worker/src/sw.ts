@@ -10,8 +10,13 @@ function getDB () {
 function exportCryptKey (rawKey: ArrayBuffer, iv: Uint8Array) {
   const raw = new Uint8Array(rawKey)
   const full = Uint8Array.from([...raw, ...iv])
-  console.log({ raw, iv, full })
   return btoa(String.fromCharCode(...full))
+}
+
+async function getCryptHash (extKey: string) {
+  const ext = Uint8Array.from(atob(extKey), c => c.charCodeAt(0))
+  const hash = await crypto.subtle.digest('SHA-256', ext)
+  return btoa(String.fromCharCode(...new Uint8Array(hash)))
 }
 
 function getExtraBytes (length: number) {
@@ -28,18 +33,21 @@ workbox.routing.registerRoute(/upload\/tus/, async route => {
   const length = Number(req.headers.get('Upload-Length'))
   const cryptLength = getEncryptedLength(length)
 
+  const iv = crypto.getRandomValues(new Uint8Array(4))
+  const cryptKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, ['encrypt'])
+  const rawKey = await crypto.subtle.exportKey('raw', cryptKey)
+  const extKey = exportCryptKey(rawKey, iv)
+  const hash = await getCryptHash(extKey)
+
   req.headers.set('Upload-Length', String(cryptLength))
-  req.headers.set('Dropper-Encrypted', '1.0')
+  req.headers.set('Dropper-Crypto', '1.0')
+  req.headers.set('Dropper-Hash', hash)
 
   const res = await fetch(req)
   const filename = res.headers.get('Location').replace('/upload/tus/', '')
 
-  const iv = crypto.getRandomValues(new Uint8Array(4))
-  const cryptKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, ['encrypt'])
-  const rawKey = await crypto.subtle.exportKey('raw', cryptKey)
-
   const db = await getDB()
-  await db.put('cryptkeys', { iv, cryptKey, rawKey }, filename)
+  await db.put('cryptkeys', { iv, cryptKey, rawKey, extKey }, filename)
 
   return res
 }, 'POST')
@@ -52,9 +60,8 @@ workbox.routing.registerRoute(/upload\/tus/, async route => {
   const filename = url.pathname.replace('/upload/tus/', '')
 
   const db = await getDB()
-  const { cryptKey, iv, rawKey } = await db.get('cryptkeys', filename)
+  const { cryptKey, iv } = await db.get('cryptkeys', filename)
   const encrypt = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, cryptKey, chunk)
-  req.headers.set('Cryptkey', exportCryptKey(rawKey, iv))
 
   const offset = Number(request.headers.get('Upload-Offset'))
   if (offset) {
@@ -71,17 +78,3 @@ workbox.routing.registerRoute(/upload\/tus/, async route => {
 
   return res
 }, 'PATCH')
-
-// (async () => {
-//   const data = new TextEncoder().encode('test')
-
-
-
-//   // const r = await crypto.subtle.exportKey('raw', keyOrignal)
-//   // const k = btoa(String.fromCharCode(...new Uint8Array(r)))
-//   // const key = await crypto.subtle.importKey('raw', Uint8Array.from(atob(k), c => c.charCodeAt(0)), { name: 'AES-GCM' }, false, ['decrypt'])
-
-//   const decrypt = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, encrypt)
-
-//   console.log({data, k, encrypt, decrypt})
-// })()

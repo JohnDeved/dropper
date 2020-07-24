@@ -7,6 +7,7 @@ interface KeysDB extends DBSchema {
       iv: Uint8Array
       cryptKey: CryptoKey
       rawKey: ArrayBuffer
+      extKey: string
     }
   }
 }

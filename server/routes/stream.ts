@@ -4,6 +4,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
 import { fileModel } from '../modules/mongo'
 import { nextjs } from '../modules/next'
 import { exists } from '../modules/rclone'
+
 const router = express.Router()
 const serveUrl = 'http://127.0.0.1:8080'
 
@@ -26,7 +27,6 @@ const proxy = createProxyMiddleware({
 
 router.get('/:filename', async (req, res, next) => {
   const { filename } = req.params
-  if (!filename) return next()
 
   const exist = await exists(filename)
   if (!exist) return nextjs.render404(req, res)

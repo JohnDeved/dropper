@@ -3,9 +3,29 @@ import { Dashboard } from '@uppy/react'
 import Tus from '@uppy/tus'
 import Uppy from '@uppy/core'
 import { Notification } from 'rsuite'
+import { openDB } from 'idb'
 
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
+
+function getDB () {
+  return openDB<typeof idb.KeysDB>('dropper', 1, {
+    upgrade(db) { db.createObjectStore('cryptkeys') }
+  })
+}
+
+async function getCryptKey (fileId: string) {
+  const db = await getDB()
+  return db.get('cryptkeys', fileId)
+}
+
+function getFileId (url: string) {
+  return url.replace('/upload/tus/', '')
+}
+
+function getCryptoUrl (url: string, extKey: string) {
+  return location.href.slice(0,-1) + url.replace('upload/tus', 'crypto') + `?key=${extKey}`
+}
 
 const uppy = Uppy({
   meta: { type: 'avatar' },
@@ -20,19 +40,37 @@ uppy.use(Tus, {
   chunkSize: 1e7
 })
 
-uppy.on('upload-success', (file, body: { uploadURL: string }) => {
-  const uploadURL = location.href.slice(0,-1) + body.uploadURL.replace('upload/tus', 'stream')
+uppy.on('upload-success', async (file, body: { uploadURL: string }) => {
+  const fileId = getFileId(body.uploadURL)
+  const crypt = await getCryptKey(fileId)
+
+  let uploadURL = ''
+  if (crypt) {
+    uploadURL = getCryptoUrl(body.uploadURL, crypt.extKey)
+  } else {
+    uploadURL = location.href.slice(0,-1) + body.uploadURL.replace('upload/tus', 'stream')
+  }
+
   uppy.setFileState(file.id, { uploadURL })
 })
 
-uppy.on('complete', result => {
-  const clipboard = result.successful.map((file, i, arr) => {
-    let text = file.uploadURL
+uppy.on('complete', async result => {
+  const clipboard = await Promise.all(result.successful.map(async (file, i, arr) => {
+    let text = ''
+
+    if(/stream|crypto/.test(file.uploadURL)) {
+      text = file.uploadURL
+    } else {
+      const fileId = getFileId(file.uploadURL)
+      const crypt = await getCryptKey(fileId)
+      text = await getCryptoUrl(file.uploadURL, crypt.extKey)
+    }
+
     if (arr.length > 1) text += ` (${file.name})`
     return text
-  }).join('\n')
+  }))
 
-  navigator.clipboard.writeText(clipboard)
+  navigator.clipboard.writeText(clipboard.join('\n'))
   Notification.success({
     title: 'Copied to Clipboard',
     description: clipboard

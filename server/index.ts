@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/node';
 import { nextjs, handle } from './modules/next';
 import oembed from './routes/oembed';
 import { dev } from './modules/config';
+import crypto from './routes/crypto';
 
 if (!dev) {
   Sentry.init({
@@ -20,6 +21,7 @@ nextjs.prepare().then(() => {
 
   app.use('/upload', upload)
   app.use('/stream', stream)
+  app.use('/crypto', crypto)
   app.use('/oembed', oembed)
 
   app.get('*', (req, res) => handle(req, res))

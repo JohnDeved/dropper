@@ -17,6 +17,12 @@ export class FileClass {
   @prop()
   length?: number
 
+  @prop()
+  vcrypto?: string
+
+  @prop()
+  keyhash?: string
+
   @prop({ default: () => new Date() })
   date?: Date
 
