@@ -59,7 +59,7 @@ uppy.on('complete', async result => {
   const clipboard = await Promise.all(result.successful.map(async (file, i, arr) => {
     let text = ''
 
-    if(/stream|crypto/.test(file.uploadURL)) {
+    if(/stream|crypto/g.test(file.uploadURL)) {
       text = file.uploadURL
     } else {
       const fileId = getFileId(file.uploadURL)
