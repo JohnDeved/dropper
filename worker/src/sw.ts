@@ -1,6 +1,8 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
 importScripts("https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js")
 
+workbox.core.clientsClaim()
+
 function getDB () {
   return idb.openDB<typeof idb.KeysDB>('dropper', 1, {
     upgrade(db) { db.createObjectStore('cryptkeys') }

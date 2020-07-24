@@ -1,21 +1,16 @@
 import './style.sass'
 import 'rsuite/lib/styles/themes/dark/index.less'
 import Head from 'next/head'
-import { useEffect } from 'react';
+import { useEffect } from 'react'
+import { Workbox } from 'workbox-window'
 
 // This default export is required in a new `pages/_app.js` file.
 export default function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-      .then((reg) => {
-        // registration worked
-        console.log('Registration succeeded. Scope is ' + reg.scope);
-      }).catch((error) => {
-        // registration failed
-        console.log('Registration failed with ' + error);
-      })
+      const wb = new Workbox('/sw.js')
+      wb.register()
     }
   })
 
