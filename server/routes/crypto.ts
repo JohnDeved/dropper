@@ -4,6 +4,7 @@ import { fileModel } from '../modules/mongo'
 import { Transform } from 'stream'
 import BlockStream from 'block-stream2'
 import { Crypto } from '@peculiar/webcrypto'
+import { Header } from 'rsuite'
 
 const webcrypto = new Crypto()
 const router = express.Router()
@@ -38,6 +39,15 @@ router.get('/:filename', async (req, res) => {
       this.push(Buffer.from(decrypt))
       next()
     }
+  })
+
+  response.headers.forEach((value, name) => {
+    if (name === 'content-length') {
+      const length = Number(value)
+      const extraBytes = Math.ceil(length / 1e7) * 16
+      return res.set('content-length', String(length - extraBytes))
+    }
+    res.header(name, value)
   })
 
   response.body
