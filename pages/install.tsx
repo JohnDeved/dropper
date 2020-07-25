@@ -11,7 +11,5 @@ export default function Install () {
     }
   })
 
-  return <>
-    installing service worker...
-  </>
+  return <></>
 }
