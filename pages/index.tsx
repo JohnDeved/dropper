@@ -91,6 +91,7 @@ uppy.on('complete', async result => {
 
 export default function Index () {
   const [modalOpen, setModalOpen] = useState(false)
+  const [disableCryptSetting, setDisableCryptSetting] = useState(false)
   const [settingsState, setSettingsState] = useState<{[key in keyof TSettings]?: TSettings[key]}>({})
   const { encryption } = settingsState || {}
 
@@ -98,7 +99,22 @@ export default function Index () {
     getDB()
       .then(db => db.get('settings', 0))
       .then(settings => setSettingsState(settings))
+
+    uppy.on('upload', () => setDisableCryptSetting(true))
+    uppy.on('upload-success', () => setDisableCryptSetting(false))
   }, [Toggle])
+
+  const EncryptInfo = (
+    <Popover title="Encryption">
+      <p>
+        Enabling this Setting will Encrypt your future Uploads<br/>
+        using an End to End File encryption Method.<br/>
+        Your files can only be decrypted using a secret key<br/>
+        that you will receive after the upload.
+      </p>
+      <p></p>
+    </Popover>
+  )
 
   async function setSetting (store: 'settings', value: TSettings, key: 0)
   async function setSetting (store: TSetting, value: any, key: any) {
@@ -116,18 +132,6 @@ export default function Index () {
       registration.active.postMessage(state)
     })
   }
-
-  const EncryptInfo = (
-    <Popover title="Encryption">
-      <p>
-        Enabling this Setting will Encrypt your future Uploads<br/>
-        using an End to End File encryption Method.<br/>
-        Your files can only be decrypted using a secret key<br/>
-        that you will receive after the upload.
-      </p>
-      <p></p>
-    </Popover>
-  )
 
   function getToggle () {
     if (typeof window !== 'undefined' && navigator?.vendor?.includes('Apple')) {
@@ -147,7 +151,7 @@ export default function Index () {
         </Whisper>
       )
     } else {
-      return <Toggle checked={encryption} onChange={setEncryption} checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
+      return <Toggle disabled={disableCryptSetting} checked={encryption} onChange={setEncryption} checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
     }
   }
 
