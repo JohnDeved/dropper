@@ -10,4 +10,10 @@ export interface KeysDB extends DBSchema {
       extKey: string
     }
   }
+  settings: {
+    key: 0
+    value: {
+      encryption: boolean
+    }
+  }
 }

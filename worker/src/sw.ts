@@ -1,11 +1,15 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
 importScripts('https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js')
+importScripts('https://unpkg.com/web-streams-polyfill@3.0.0/dist/ponyfill.es6.js')
 
 workbox.core.clientsClaim()
 
 function getDB () {
   return idb.openDB<typeof idb.KeysDB>('dropper', 1, {
-    upgrade (db) { db.createObjectStore('cryptkeys') }
+    upgrade (db) {
+      db.createObjectStore('cryptkeys')
+      db.createObjectStore('settings')
+    }
   })
 }
 
