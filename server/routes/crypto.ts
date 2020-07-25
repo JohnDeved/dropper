@@ -4,6 +4,7 @@ import { fileModel } from '../modules/mongo'
 import { Transform } from 'stream'
 import BlockStream from 'block-stream2'
 import { Crypto } from '@peculiar/webcrypto'
+import { nextjs } from '../modules/next'
 
 const webcrypto = new Crypto()
 const router = express.Router()
@@ -18,10 +19,10 @@ router.get('/:filename', async (req, res) => {
   if (req.headers?.accept.includes('html')) {
     const agent = req.headers['user-agent']
     const isSafari = agent.includes('Safari') && !agent.includes('Chrome')
-    if (isSafari) {
-      return res.send('eww safari')
+
+    if (!isSafari) {
+      return nextjs.render(req, res, '/install')
     }
-    return res.send('that shit aint external')
   }
 
   if (typeof cryptString !== 'string') return res.sendStatus(400)

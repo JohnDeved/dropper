@@ -106,3 +106,7 @@ workbox.routing.registerRoute(shouldCapture, async route => {
 
   return res
 }, 'PATCH')
+
+workbox.routing.registerRoute(/crypto/, async route => {
+  return new Response('dw bro. i got chu')
+}, 'GET')
