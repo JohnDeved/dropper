@@ -26,7 +26,7 @@ function getDB () {
 
 async function encraptionEnabled () {
   const db = await getDB()
-  const { encryption } = await db.get('settings', 0)
+  const { encryption } = await db.get('settings', 0) || {}
   return !!encryption
 }
 

@@ -5,7 +5,6 @@ import Uppy from '@uppy/core'
 import { Notification, Toggle, Icon, IconButton, Modal, Button, Badge, Popover, Whisper } from 'rsuite'
 import { openDB } from 'idb'
 import { KeysDB, TSettings, TSetting } from '../types/common'
-import { messageSW } from 'workbox-window'
 
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
@@ -93,7 +92,7 @@ uppy.on('complete', async result => {
 export default function Index () {
   const [modalOpen, setModalOpen] = useState(false)
   const [settingsState, setSettingsState] = useState<{[key in keyof TSettings]?: TSettings[key]}>({})
-  const { encryption } = settingsState
+  const { encryption } = settingsState || {}
 
   useEffect(() => {
     getDB()
