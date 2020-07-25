@@ -16,7 +16,7 @@ router.get('/:filename', async (req, res) => {
 
   console.log(req.headers)
 
-  if (req.headers?.accept.includes('html')) {
+  if (req.headers?.accept?.includes('html')) {
     const agent = req.headers['user-agent']
     const isSafari = agent.includes('Safari') && !agent.includes('Chrome')
 
