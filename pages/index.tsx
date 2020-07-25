@@ -11,7 +11,10 @@ import '@uppy/dashboard/dist/style.css'
 
 function getDB () {
   return openDB<KeysDB>('dropper', 1, {
-    upgrade (db) { db.createObjectStore('cryptkeys') }
+    upgrade (db) {
+      db.createObjectStore('cryptkeys')
+      db.createObjectStore('settings')
+    }
   })
 }
 
@@ -25,7 +28,7 @@ function getFileId (url: string) {
 }
 
 function getCryptoUrl (url: string, extKey: string) {
-  return location.href.slice(0, -1) + url.replace('upload/tus', 'crypto') + `?key=${extKey}`
+  return location.href.slice(0, -1) + url.replace('upload/tus', 'crypto') + `?key=${encodeURIComponent(extKey)}`
 }
 
 const uppy = Uppy({
