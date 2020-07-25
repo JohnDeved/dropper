@@ -14,6 +14,8 @@ router.get('/:filename', async (req, res) => {
   const { filename } = req.params
   const { key: cryptString } = req.query
 
+  console.log(req.headers)
+
   if (typeof cryptString !== 'string') return res.sendStatus(400)
 
   const response = await fetch(streamUrl + filename)
