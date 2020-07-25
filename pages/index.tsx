@@ -5,6 +5,7 @@ import Uppy from '@uppy/core'
 import { Notification, Toggle, Icon, IconButton, Modal, Button, Badge, Popover, Whisper } from 'rsuite'
 import { openDB } from 'idb'
 import { KeysDB, TSettings, TSetting } from '../types/common'
+import { messageSW } from 'workbox-window'
 
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
@@ -31,6 +32,10 @@ function getCryptoUrl (url: string, extKey: string) {
   return location.href.slice(0, -1) + url.replace('upload/tus', 'crypto') + `?key=${encodeURIComponent(extKey)}`
 }
 
+function getStreamUrl (url: string) {
+  return location.href.slice(0, -1) + url.replace('upload/tus', 'stream')
+}
+
 const uppy = Uppy({
   meta: { type: 'avatar' },
   autoProceed: true
@@ -52,7 +57,7 @@ uppy.on('upload-success', async (file, body: { uploadURL: string }) => {
   if (crypt) {
     uploadURL = getCryptoUrl(body.uploadURL, crypt.extKey)
   } else {
-    uploadURL = location.href.slice(0, -1) + body.uploadURL.replace('upload/tus', 'stream')
+    uploadURL = getStreamUrl(body.uploadURL)
   }
 
   uppy.setFileState(file.id, { uploadURL })
@@ -67,7 +72,11 @@ uppy.on('complete', async result => {
     } else {
       const fileId = getFileId(file.uploadURL)
       const crypt = await getCryptKey(fileId)
-      text = await getCryptoUrl(file.uploadURL, crypt.extKey)
+      if (crypt) {
+        text = await getCryptoUrl(file.uploadURL, crypt.extKey)
+      } else {
+        text = getStreamUrl(file.uploadURL)
+      }
     }
 
     if (arr.length > 1) text += ` (${file.name})`
@@ -100,6 +109,13 @@ export default function Index () {
 
     const db = await getDB()
     db.put(store, value, key)
+  }
+
+  function setEncryption (state: boolean) {
+    setSetting('settings', { encryption: state }, 0)
+    navigator.serviceWorker.ready.then(registration => {
+      registration.active.postMessage(state)
+    })
   }
 
   const EncryptInfo = (
@@ -152,7 +168,7 @@ export default function Index () {
         <Modal.Body>
           <div className="setting">
             <label>Encryption</label>
-            <Toggle checked={encryption} onChange={encryption => setSetting('settings', { encryption }, 0)} checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
+            <Toggle checked={encryption} onChange={setEncryption} checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
             <Whisper placement="top" trigger="hover" speaker={EncryptInfo}>
               <Icon className="info" icon="question2"></Icon>
             </Whisper>

@@ -4,6 +4,17 @@ importScripts('https://unpkg.com/web-streams-polyfill@3.0.0/dist/ponyfill.es6.js
 
 workbox.core.clientsClaim()
 
+let shouldEncrypt = false
+
+addEventListener('message', ({ data }) => {
+  shouldEncrypt = data
+})
+
+addEventListener('install', async () => {
+  console.log('service worker installed')
+  shouldEncrypt = await encraptionEnabled()
+})
+
 function getDB () {
   return idb.openDB<typeof idb.KeysDB>('dropper', 1, {
     upgrade (db) {
@@ -11,6 +22,12 @@ function getDB () {
       db.createObjectStore('settings')
     }
   })
+}
+
+async function encraptionEnabled () {
+  const db = await getDB()
+  const { encryption } = await db.get('settings', 0)
+  return !!encryption
 }
 
 function exportCryptKey (rawKey: ArrayBuffer, iv: Uint8Array) {
@@ -33,7 +50,12 @@ function getEncryptedLength (length: number) {
   return length + getExtraBytes(length)
 }
 
-workbox.routing.registerRoute(/upload\/tus/, async route => {
+type RouteMatchCallback = Parameters<typeof workbox.routing.registerRoute>[0]
+const shouldCapture: RouteMatchCallback = ({ url }) => {
+  return /upload\/tus/.test(url.href) && shouldEncrypt
+}
+
+workbox.routing.registerRoute(shouldCapture, async route => {
   const { request } = route
   const req = new Request(request.clone())
   const length = Number(req.headers.get('Upload-Length'))
@@ -58,7 +80,7 @@ workbox.routing.registerRoute(/upload\/tus/, async route => {
   return res
 }, 'POST')
 
-workbox.routing.registerRoute(/upload\/tus/, async route => {
+workbox.routing.registerRoute(shouldCapture, async route => {
   const { request, url } = route
   const req = new Request(request.clone())
   const chunk = await request.arrayBuffer()
