@@ -37,6 +37,7 @@ embed.embed
 .rs-modal-wrapper
   display: flex
   align-items: center
+  backdrop-filter: blur(2px)
 
 .index
   height: 100vh
@@ -67,6 +68,10 @@ embed.embed
       height: 70px
       position: absolute
       margin-right: 50px
+      pointer-events: none
+
+      .rs-btn
+        pointer-events: all
 
   .upload
     height: calc(100vh - 110px)
