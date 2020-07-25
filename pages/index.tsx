@@ -130,7 +130,7 @@ export default function Index () {
   )
 
   function getToggle () {
-    if (navigator.vendor.includes('Apple')) {
+    if (typeof window !== 'undefined' && navigator?.vendor?.includes('Apple')) {
       const EncryptInfo = (
         <Popover title="Unsupported">
           <p>
