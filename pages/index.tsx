@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Dashboard } from '@uppy/react'
 import Tus from '@uppy/tus'
 import Uppy from '@uppy/core'
 import { Notification, Toggle, Icon, IconButton, Modal, Button, Badge, Popover, Whisper } from 'rsuite'
 import { openDB } from 'idb'
-import { KeysDB } from '../types/common'
+import { KeysDB, TSettings, TSetting } from '../types/common'
 
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
@@ -83,6 +83,24 @@ uppy.on('complete', async result => {
 
 export default function Index () {
   const [modalOpen, setModalOpen] = useState(false)
+  const [settingsState, setSettingsState] = useState<{[key in keyof TSettings]?: TSettings[key]}>({})
+  const { encryption } = settingsState
+
+  useEffect(() => {
+    getDB()
+      .then(db => db.get('settings', 0))
+      .then(settings => setSettingsState(settings))
+  }, [Toggle])
+
+  async function setSetting (store: 'settings', value: TSettings, key: 0)
+  async function setSetting (store: TSetting, value: any, key: any) {
+    if (store === 'settings') {
+      setSettingsState({ ...settingsState, ...value })
+    }
+
+    const db = await getDB()
+    db.put(store, value, key)
+  }
 
   const EncryptInfo = (
     <Popover title="Encryption">
@@ -134,7 +152,7 @@ export default function Index () {
         <Modal.Body>
           <div className="setting">
             <label>Encryption</label>
-            <Toggle checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
+            <Toggle checked={encryption} onChange={encryption => setSetting('settings', { encryption }, 0)} checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
             <Whisper placement="top" trigger="hover" speaker={EncryptInfo}>
               <Icon className="info" icon="question2"></Icon>
             </Whisper>

@@ -1,6 +1,6 @@
 import { DBSchema } from 'idb'
 
-export interface KeysDB extends DBSchema {
+interface ISettings {
   cryptkeys: {
     key: string
     value: {
@@ -17,3 +17,7 @@ export interface KeysDB extends DBSchema {
     }
   }
 }
+
+export type KeysDB = ISettings & DBSchema
+export type TSettings = ISettings['settings']['value']
+export type TSetting = keyof ISettings
