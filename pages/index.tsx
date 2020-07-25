@@ -129,6 +129,28 @@ export default function Index () {
     </Popover>
   )
 
+  function getToggle () {
+    if (navigator.vendor.includes('Apple')) {
+      const EncryptInfo = (
+        <Popover title="Unsupported">
+          <p>
+            Woops, seems like your browser isnt Supported with this feature yet.<br/>
+            Rest asured we are working on it, so check back later!
+          </p>
+          <p></p>
+        </Popover>
+      )
+
+      return (
+        <Whisper placement="top" trigger="hover" speaker={EncryptInfo}>
+          <Toggle disabled={true} />
+        </Whisper>
+      )
+    } else {
+      return <Toggle checked={encryption} onChange={setEncryption} checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
+    }
+  }
+
   return (
     <div className="index">
       <div className="header">
@@ -167,7 +189,7 @@ export default function Index () {
         <Modal.Body>
           <div className="setting">
             <label>Encryption</label>
-            <Toggle checked={encryption} onChange={setEncryption} checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
+            {getToggle()}
             <Whisper placement="top" trigger="hover" speaker={EncryptInfo}>
               <Icon className="info" icon="question2"></Icon>
             </Whisper>

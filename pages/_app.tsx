@@ -7,7 +7,7 @@ import { Workbox } from 'workbox-window'
 // This default export is required in a new `pages/_app.js` file.
 export default function MyApp ({ Component, pageProps }) {
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
+    if (navigator.serviceWorker && navigator.vendor && !navigator.vendor.includes('Apple')) {
       const wb = new Workbox('/sw.js')
       wb.register()
     }
