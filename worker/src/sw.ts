@@ -2,7 +2,8 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox
 importScripts('https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js')
 
 // todo: check cryptkey hash
-// todo: make video decryped stream load faster
+// todo: opt-out embed fallback
+// todo: stop download after abort
 
 workbox.core.clientsClaim()
 
@@ -141,8 +142,16 @@ workbox.routing.registerRoute(shouldCapture, async route => {
 
 workbox.routing.registerRoute(shouldDecrypt, async route => {
   const { url } = route
+
+  const hashRes = await fetch(url.href, { method: 'POST' })
+  if (!hashRes.ok) return new Response('something went wrong on your end', { status: 400 })
+  const hash = new Uint8Array(await hashRes.arrayBuffer())
+
   const keyEnc = url.searchParams.get('key')
   const rawKey = Uint8Array.from(atob(keyEnc), c => c.charCodeAt(0))
+  const rawHash = new Uint8Array(await crypto.subtle.digest('SHA-256', rawKey))
+  if (String(hash) !== String(rawHash)) return new Response('wrong key', { status: 400 })
+
   const [, fileid] = url.pathname.match(/crypto\/([^/]+)/)
   const streamUrl = location.origin + '/stream/' + fileid
   const key = rawKey.slice(0, 16)

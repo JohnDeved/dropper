@@ -10,6 +10,14 @@ const webcrypto = new Crypto()
 const router = express.Router()
 const streamUrl = 'http://127.0.0.1:3000/stream/'
 
+router.post('/:filename', async (req, res) => {
+  const { filename } = req.params
+  const { keyhash } = await fileModel.findOne({ _id: filename }) || {}
+  if (!keyhash) return res.status(400).send('file is not encrypted')
+  const compHash = Buffer.from(keyhash, 'base64')
+  res.send(compHash)
+})
+
 router.get('/:filename', async (req, res) => {
   const { filename } = req.params
   const { key: cryptString } = req.query
@@ -28,7 +36,7 @@ router.get('/:filename', async (req, res) => {
   const response = await fetch(streamUrl + filename)
   if (!response.ok) return res.sendStatus(response.status)
 
-  const { keyhash } = await fileModel.findOne({ _id: filename })
+  const { keyhash } = await fileModel.findOne({ _id: filename }) || {}
   if (!keyhash) return res.status(400).send('file is not encrypted')
 
   const cryptBuffer = Buffer.from(cryptString, 'base64')
