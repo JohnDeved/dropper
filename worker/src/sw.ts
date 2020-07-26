@@ -2,7 +2,6 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox
 importScripts('https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js')
 
 // todo: check cryptkey hash
-// todo: mock upload head request
 // todo: make video decryped stream load faster
 
 workbox.core.clientsClaim()
@@ -51,6 +50,10 @@ function getExtraBytes (length: number) {
 
 function getEncryptedLength (length: number) {
   return length + getExtraBytes(length)
+}
+
+function getDecryptedLength (length: number) {
+  return length - getExtraBytes(length)
 }
 
 type RouteMatchCallback = Parameters<typeof workbox.routing.registerRoute>[0]
@@ -115,6 +118,27 @@ workbox.routing.registerRoute(shouldCapture, async route => {
   return res
 }, 'PATCH')
 
+workbox.routing.registerRoute(shouldCapture, async route => {
+  const { request, url } = route
+
+  const res = await fetch(url.href, { headers: request.headers, method: 'HEAD' })
+  const resClone = new Response(res.body, { headers: res.headers })
+
+  let length = Number(res.headers.get('Upload-Length'))
+  length = getDecryptedLength(length)
+  if (length) {
+    resClone.headers.set('Upload-Length', String(length))
+  }
+
+  let offset = Number(res.headers.get('Upload-Offset'))
+  offset = Math.floor(offset / 5e5) * 5e5
+  if (offset) {
+    resClone.headers.set('Upload-Offset', String(offset))
+  }
+
+  return new Response(null, { headers: resClone.headers, status: res.status })
+}, 'HEAD')
+
 workbox.routing.registerRoute(shouldDecrypt, async route => {
   const { url } = route
   const keyEnc = url.searchParams.get('key')
@@ -128,7 +152,7 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
 
   const resClone = new Response(res.body, { headers: res.headers })
   const length = Number(res.headers.get('content-length'))
-  const extraBytes = Math.ceil(length / 5e5) * 16
+  const extraBytes = getExtraBytes(length)
   resClone.headers.set('content-length', String(length - extraBytes))
 
   const mime = res.headers.get('content-type')
