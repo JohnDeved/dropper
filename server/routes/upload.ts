@@ -1,27 +1,34 @@
-import * as fs from 'fs'
-import * as crypto from 'crypto'
-import base64url from "base64url"
+import fs from 'fs'
+import crypto from 'crypto'
+import base64url from 'base64url'
 import Busboy from 'busboy'
 import express from 'express'
 import { move } from '../modules/rclone'
 import { fileModel } from '../modules/mongo'
 import parseFile from 'parse-filepath'
 import { promisify } from 'util'
+import { Buffer } from 'buffer'
 
-const fsExists = promisify(fs.exists)
 const router = express.Router()
+
+function fsExists (path: string) {
+  return new Promise((resolve) => {
+    fs.promises.access(path)
+      .then(() => resolve(true))
+      .catch(() => resolve(false))
+  })
+}
 
 router.post('/xhr', (req, res) => {
   const busboy = new Busboy({ headers: req.headers })
 
   const length = Number(req.get('Content-Length'))
-  if (length > 1e+8) return res.sendStatus(400)
+  if (length > 1e8) return res.sendStatus(400)
 
   busboy.on('file', async (key, file, filename) => {
     let filehash = base64url(crypto.randomBytes(5))
     const { ext } = parseFile(filename)
     if (ext) filehash += ext
-
 
     const path = `tmp/${filehash}`
     file.pipe(fs.createWriteStream(path))
@@ -59,12 +66,15 @@ function getMetaData (req: express.Request): IUploadMetadata {
 router.post('/tus', async (req, res) => {
   const { filename } = getMetaData(req)
   const length = Number(req.get('Upload-Length'))
+  const vcrypto = req.get('Dropper-Crypto')
+  const keyhash = req.get('Dropper-Hash')
+  const embeddable = !!req.get('Dropper-Embed')
 
   let filehash = base64url(crypto.randomBytes(5))
   const { ext } = parseFile(filename)
   if (ext) filehash += ext
 
-  await fileModel.create({ _id: filehash, filename, length })
+  await fileModel.create({ _id: filehash, filename, length, vcrypto, keyhash, embeddable })
 
   fs.promises.writeFile(`tmp/${filehash}`, Buffer.from([]))
 
@@ -78,6 +88,7 @@ router.patch('/tus/:filename', async (req, res) => {
   const { filename } = req.params
   const length = Number(req.get('Content-Length'))
   const offset = Number(req.get('Upload-Offset'))
+
   const total = offset + length
   const path = `tmp/${filename}`
 
@@ -129,6 +140,5 @@ router.head('/tus/:filename', async (req, res, next) => {
   res.setHeader('Tus-Resumable', '1.0.0')
   res.sendStatus(204)
 })
-
 
 export default router

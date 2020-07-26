@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ESNext",
+    "lib": ["WebWorker"],
+    "rootDir": "./src",
+    "outDir": "../public"
+  }
+}

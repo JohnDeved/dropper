@@ -1,9 +1,8 @@
 import { useRouter } from 'next/router'
-import { isArray } from 'util'
 import { useRef, useEffect } from 'react'
 import Head from 'next/head'
 
-export default function () {
+export default function Embed () {
   const router = useRouter()
   const video = useRef()
 
@@ -18,7 +17,7 @@ export default function () {
   })
 
   function getEmbed () {
-    if (!isArray(filename) && filename?.endsWith('.mp4')) {
+    if (!Array.isArray(filename) && filename?.endsWith('.mp4')) {
       return <video className="embed" ref={video} controls src={streamRoute}></video>
     }
 

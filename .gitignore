@@ -2,3 +2,5 @@ node_modules
 dist
 .history
 .next
+public/sw.js
+tmp
