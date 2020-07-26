@@ -159,7 +159,7 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
         }
 
         const chunkSize = 5e5 + 16
-        if (chunk.byteLength >= 5e5 + 16) {
+        if (chunk.byteLength >= chunkSize) {
           const cryptChunk = chunk.slice(0, chunkSize)
           const rest = chunk.slice(chunkSize)
 
