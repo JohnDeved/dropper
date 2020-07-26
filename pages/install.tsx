@@ -7,6 +7,7 @@ export default function Install () {
     if ('serviceWorker' in navigator && 'vendor' in navigator && !navigator.vendor.includes('Apple')) {
       new Workbox('/sw.js').register().then(() => {
         location.reload()
+        setTimeout(close, 15000)
       })
     }
   })
