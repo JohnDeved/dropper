@@ -1,8 +1,6 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
 importScripts('https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js')
 
-// todo: check cryptkey hash
-// todo: opt-out embed fallback
 // todo: stop download after abort
 
 workbox.core.clientsClaim()
@@ -71,7 +69,9 @@ workbox.routing.registerRoute(shouldCapture, async route => {
   const req = new Request(request.clone())
   const length = Number(req.headers.get('Upload-Length'))
   const cryptLength = getEncryptedLength(length)
+  const db = await getDB()
 
+  const { embed } = await db.get('settings', 0)
   const iv = crypto.getRandomValues(new Uint8Array(4))
   const cryptKey = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, ['encrypt'])
   const rawKey = await crypto.subtle.exportKey('raw', cryptKey)
@@ -81,11 +81,11 @@ workbox.routing.registerRoute(shouldCapture, async route => {
   req.headers.set('Upload-Length', String(cryptLength))
   req.headers.set('Dropper-Crypto', '1.0')
   req.headers.set('Dropper-Hash', hash)
+  req.headers.set('Dropper-Embed', String(embed))
 
   const res = await fetch(req)
   const filename = res.headers.get('Location').replace('/upload/tus/', '')
 
-  const db = await getDB()
   await db.put('cryptkeys', { iv, cryptKey, rawKey, extKey }, filename)
 
   return res
@@ -147,7 +147,8 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   if (!hashRes.ok) return new Response('something went wrong on your end', { status: 400 })
   const hash = new Uint8Array(await hashRes.arrayBuffer())
 
-  const keyEnc = url.searchParams.get('key')
+  let keyEnc = url.searchParams.get('key')
+  if (!keyEnc) keyEnc = decodeURIComponent(url.hash.slice(1))
   const rawKey = Uint8Array.from(atob(keyEnc), c => c.charCodeAt(0))
   const rawHash = new Uint8Array(await crypto.subtle.digest('SHA-256', rawKey))
   if (String(hash) !== String(rawHash)) return new Response('wrong key', { status: 400 })

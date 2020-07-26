@@ -68,12 +68,13 @@ router.post('/tus', async (req, res) => {
   const length = Number(req.get('Upload-Length'))
   const vcrypto = req.get('Dropper-Crypto')
   const keyhash = req.get('Dropper-Hash')
+  const embeddable = !!req.get('Dropper-Embed')
 
   let filehash = base64url(crypto.randomBytes(5))
   const { ext } = parseFile(filename)
   if (ext) filehash += ext
 
-  await fileModel.create({ _id: filehash, filename, length, vcrypto, keyhash })
+  await fileModel.create({ _id: filehash, filename, length, vcrypto, keyhash, embeddable })
 
   fs.promises.writeFile(`tmp/${filehash}`, Buffer.from([]))
 

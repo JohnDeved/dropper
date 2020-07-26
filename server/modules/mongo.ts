@@ -23,6 +23,9 @@ export class FileClass {
   @prop()
   keyhash?: string
 
+  @prop()
+  embeddable?: boolean
+
   @prop({ default: () => new Date() })
   date?: Date
 

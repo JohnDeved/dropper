@@ -31,12 +31,14 @@ router.get('/:filename', async (req, res) => {
     }
   }
 
+  if (!cryptString) return res.status(400).send('embed not allowed')
   if (typeof cryptString !== 'string') return res.sendStatus(400)
 
   const response = await fetch(streamUrl + filename)
   if (!response.ok) return res.sendStatus(response.status)
 
-  const { keyhash } = await fileModel.findOne({ _id: filename }) || {}
+  const { keyhash, embeddable } = await fileModel.findOne({ _id: filename }) || {}
+  if (!embeddable) return res.status(400).send('embed not allowed')
   if (!keyhash) return res.status(400).send('file is not encrypted')
 
   const cryptBuffer = Buffer.from(cryptString, 'base64')

@@ -14,6 +14,7 @@ interface ISettings {
     key: 0
     value: {
       encryption: boolean
+      embed: boolean
     }
   }
 }

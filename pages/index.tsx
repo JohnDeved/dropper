@@ -33,8 +33,15 @@ function getFileId (url: string) {
   return url.replace('/upload/tus/', '')
 }
 
-function getCryptoUrl (url: string, extKey: string) {
-  return location.href.slice(0, -1) + url.replace('upload/tus', 'crypto') + `?key=${encodeURIComponent(extKey)}`
+async function getCryptoUrl (url: string, extKey: string) {
+  const db = await getDB()
+  const { embed } = await db.get('settings', 0)
+
+  if (embed) {
+    return location.href.slice(0, -1) + url.replace('upload/tus', 'crypto') + `?key=${encodeURIComponent(extKey)}`
+  } else {
+    return location.href.slice(0, -1) + url.replace('upload/tus', 'crypto') + `#${encodeURIComponent(extKey)}`
+  }
 }
 
 function getStreamUrl (url: string) {
@@ -60,7 +67,7 @@ uppy.on('upload-success', async (file, body: { uploadURL: string }) => {
 
   let uploadURL = ''
   if (crypt) {
-    uploadURL = getCryptoUrl(body.uploadURL, crypt.extKey)
+    uploadURL = await getCryptoUrl(body.uploadURL, crypt.extKey)
   } else {
     uploadURL = getStreamUrl(body.uploadURL)
   }
@@ -98,8 +105,8 @@ uppy.on('complete', async result => {
 export default function Index () {
   const [modalOpen, setModalOpen] = useState(false)
   const [disableCryptSetting, setDisableCryptSetting] = useState(false)
-  const [settingsState, setSettingsState] = useState<{[key in keyof TSettings]?: TSettings[key]}>({})
-  const { encryption } = settingsState || {}
+  const [settingsState, setSettingsState] = useState<{[key in keyof TSettings]: TSettings[key]}>({} as any)
+  const { encryption, embed } = settingsState || {}
 
   useEffect(() => {
     getDB()
@@ -112,7 +119,7 @@ export default function Index () {
     getCryptSetting().then(sendEncryptionState)
   }, [Toggle])
 
-  const EncryptInfo = (
+  const encryptInfo = (
     <Popover title="Encryption">
       <p>
         Enabling this Setting will Encrypt your future Uploads<br/>
@@ -120,7 +127,19 @@ export default function Index () {
         Your files can only be decrypted using a secret key<br/>
         that you will receive after the upload.
       </p>
-      <p></p>
+    </Popover>
+  )
+
+  const embedInfo = (
+    <Popover title="Allow Encrypted Embed">
+      <p>
+        Enabling this Setting will Allow external sites<br/>
+        to Embed your content. (Reddit, Twitter, Discord, etc)<br/>
+        <br/>
+        This could mean a potential security risk for your files.<br/>
+        But this would be useful if you are<br/>
+        trying to share your Encrypted Image on social media.
+      </p>
     </Popover>
   )
 
@@ -141,29 +160,63 @@ export default function Index () {
   }
 
   function setEncryption (state: boolean) {
-    setSetting('settings', { encryption: state }, 0)
+    setSetting('settings', { ...settingsState, encryption: state }, 0)
     sendEncryptionState(state)
   }
 
-  function getToggle () {
+  function setEmbed (state: boolean) {
+    setSetting('settings', { ...settingsState, embed: state }, 0)
+  }
+
+  function getEncryptionToggle () {
     if (typeof window !== 'undefined' && navigator?.vendor?.includes('Apple')) {
-      const EncryptInfo = (
+      const info = (
         <Popover title="Unsupported">
           <p>
             Woops, seems like your browser isnt Supported with this feature yet.<br/>
             Rest asured we are working on it, so check back later!
           </p>
-          <p></p>
         </Popover>
       )
 
       return (
-        <Whisper placement="top" trigger="hover" speaker={EncryptInfo}>
+        <Whisper placement="top" trigger="hover" speaker={info}>
           <Toggle disabled={true} />
         </Whisper>
       )
     } else {
-      return <Toggle disabled={disableCryptSetting} checked={encryption} onChange={setEncryption} checkedChildren={<Icon icon="lock" />} unCheckedChildren={<Icon icon="unlock-alt" />} />
+      return <Toggle
+        disabled={disableCryptSetting}
+        checked={encryption}
+        onChange={setEncryption}
+        checkedChildren={<Icon icon="lock" />}
+        unCheckedChildren={<Icon icon="unlock-alt" />}
+      />
+    }
+  }
+
+  function getEmbedToggle () {
+    if (!encryption) {
+      const info = (
+        <Popover title="Sorry">
+          <p>
+            This setting is only available when Encryption is enabled.
+          </p>
+        </Popover>
+      )
+
+      return (
+        <Whisper placement="top" trigger="hover" speaker={info}>
+          <Toggle disabled={true} />
+        </Whisper>
+      )
+    } else {
+      return <Toggle
+        checked={embed}
+        onChange={setEmbed}
+        checkedChildren={<Icon icon="link" />}
+        unCheckedChildren={<Icon icon="unlink" />}
+      />
     }
   }
 
@@ -205,8 +258,15 @@ export default function Index () {
         <Modal.Body>
           <div className="setting">
             <label>Encryption</label>
-            {getToggle()}
-            <Whisper placement="top" trigger="hover" speaker={EncryptInfo}>
+            {getEncryptionToggle()}
+            <Whisper placement="top" trigger="hover" speaker={encryptInfo}>
+              <Icon className="info" icon="question2"></Icon>
+            </Whisper>
+          </div>
+          <div className="setting">
+            <label>Allow Embed</label>
+            {getEmbedToggle()}
+            <Whisper placement="top" trigger="hover" speaker={embedInfo}>
               <Icon className="info" icon="question2"></Icon>
             </Whisper>
           </div>
