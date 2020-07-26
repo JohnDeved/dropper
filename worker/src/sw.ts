@@ -1,6 +1,10 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
 importScripts('https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js')
 
+// todo: check cryptkey hash
+// todo: mock upload head request
+// todo: make video decryped stream load faster
+
 workbox.core.clientsClaim()
 
 let shouldEncrypt = false
