@@ -3,6 +3,7 @@ importScripts('https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr
 
 // todo: stop download after abort
 
+workbox.core.skipWaiting()
 workbox.core.clientsClaim()
 
 let shouldEncrypt = false
