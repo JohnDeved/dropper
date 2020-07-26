@@ -160,6 +160,7 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const iv = rawKey.slice(-4)
 
   const res = await fetch(streamUrl)
+  if (!res.ok) return res
 
   const resClone = new Response(res.body, { headers: res.headers })
   const length = Number(res.headers.get('content-length'))
