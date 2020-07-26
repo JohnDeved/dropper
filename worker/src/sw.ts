@@ -1,6 +1,5 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
 importScripts('https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js')
-importScripts('https://unpkg.com/web-streams-polyfill@3.0.0/dist/ponyfill.es6.js')
 
 workbox.core.clientsClaim()
 
@@ -55,6 +54,10 @@ const shouldCapture: RouteMatchCallback = ({ url }) => {
   return /upload\/tus/.test(url.href) && shouldEncrypt
 }
 
+const shouldDecrypt: RouteMatchCallback = ({ url }) => {
+  return /crypto/.test(url.href) && navigator?.userAgent?.includes('chrome')
+}
+
 workbox.routing.registerRoute(shouldCapture, async route => {
   const { request } = route
   const req = new Request(request.clone())
@@ -98,6 +101,7 @@ workbox.routing.registerRoute(shouldCapture, async route => {
   }
 
   const response = await fetch(new Request(req, { body: encrypt }))
+
   const res = new Response(null, {
     headers: response.headers,
     status: response.status
@@ -107,6 +111,48 @@ workbox.routing.registerRoute(shouldCapture, async route => {
   return res
 }, 'PATCH')
 
-workbox.routing.registerRoute(/crypto/, async route => {
-  return new Response('dw bro. i got chu')
+workbox.routing.registerRoute(shouldDecrypt, async route => {
+  const { url } = route
+  const keyEnc = url.searchParams.get('key')
+  const rawKey = Uint8Array.from(atob(keyEnc), c => c.charCodeAt(0))
+  const [, fileid] = url.pathname.match(/crypto\/([^/]+)/)
+  const streamUrl = location.origin + '/stream/' + fileid
+
+  const key = rawKey.slice(0, 16)
+  const iv = rawKey.slice(-4)
+
+  class BlockStream extends TransformStream {
+    static size = 1e7 + 16
+    static buffered = []
+    static bufferedBytes = 0
+  }
+
+  const blockStream = new BlockStream({
+    flush (controller) {
+      console.log(BlockStream.size)
+    }
+  })
+
+  const decryptStream = new TransformStream({
+    async transform (chunk: Uint8Array, controller) {
+      console.log(chunk.byteLength)
+
+      console.log(this)
+
+      const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
+      const decrypt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk)
+
+      controller.enqueue(new Uint8Array(decrypt))
+    }
+  })
+
+  const res = await fetch(streamUrl)
+
+  const resClone = new Response(res.body.pipeThrough(decryptStream), { headers: res.headers })
+
+  const length = Number(res.headers.get('content-length'))
+  const extraBytes = Math.ceil(length / 1e7) * 16
+  resClone.headers.set('content-length', String(length - extraBytes))
+
+  return new Response(resClone.body, { headers: resClone.headers })
 }, 'GET')
