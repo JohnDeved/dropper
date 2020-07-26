@@ -56,14 +56,14 @@ router.get('/:filename', async (req, res) => {
   response.headers.forEach((value, name) => {
     if (name === 'content-length') {
       const length = Number(value)
-      const extraBytes = Math.ceil(length / 1e7) * 16
+      const extraBytes = Math.ceil(length / 5e5) * 16
       return res.set('content-length', String(length - extraBytes))
     }
     res.header(name, value)
   })
 
   response.body
-    .pipe<Transform>(new BlockStream({ size: 1e7 + 16, zeroPadding: false }))
+    .pipe<Transform>(new BlockStream({ size: 5e5 + 16, zeroPadding: false }))
     .pipe(decrypt)
     .pipe(res)
 })

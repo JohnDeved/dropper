@@ -46,7 +46,7 @@ async function getCryptHash (extKey: string) {
 }
 
 function getExtraBytes (length: number) {
-  return Math.ceil(length / 1e7) * 16
+  return Math.ceil(length / 5e5) * 16
 }
 
 function getEncryptedLength (length: number) {
@@ -130,7 +130,7 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const resClone = new Response(res.body, { headers: res.headers })
 
   const length = Number(res.headers.get('content-length'))
-  const extraBytes = Math.ceil(length / 1e7) * 16
+  const extraBytes = Math.ceil(length / 5e5) * 16
   resClone.headers.set('content-length', String(length - extraBytes))
 
   const reader = res.body.getReader()
@@ -158,8 +158,8 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
           chunk = rest
         }
 
-        const chunkSize = 1e7 + 16
-        if (chunk.byteLength >= 1e7 + 16) {
+        const chunkSize = 5e5 + 16
+        if (chunk.byteLength >= 5e5 + 16) {
           const cryptChunk = chunk.slice(0, chunkSize)
           const rest = chunk.slice(chunkSize)
 
