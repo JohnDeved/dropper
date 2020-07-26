@@ -55,7 +55,7 @@ const shouldCapture: RouteMatchCallback = ({ url }) => {
 }
 
 const shouldDecrypt: RouteMatchCallback = ({ url }) => {
-  return /crypto/.test(url.href) && navigator?.userAgent?.includes('chrome')
+  return /crypto/.test(url.href) && !!TransformStream
 }
 
 workbox.routing.registerRoute(shouldCapture, async route => {
@@ -123,21 +123,35 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
 
   class BlockStream extends TransformStream {
     static size = 1e7 + 16
-    static buffered = []
-    static bufferedBytes = 0
+    static buffered = new Uint8Array()
   }
 
   const blockStream = new BlockStream({
+    transform (chunk: Uint8Array, controller) {
+      const totalBuffer = Uint8Array.from([...BlockStream.buffered, ...chunk])
+
+      console.log(totalBuffer.byteLength)
+
+      if (totalBuffer.byteLength >= BlockStream.size) {
+        const buffer = totalBuffer.slice(0, BlockStream.size)
+        const rest = totalBuffer.slice(BlockStream.size)
+
+        console.log({ buffer, rest })
+
+        BlockStream.buffered = rest
+        return controller.enqueue(buffer)
+      }
+
+      BlockStream.buffered = totalBuffer
+    },
     flush (controller) {
-      console.log(BlockStream.size)
+      controller.enqueue(BlockStream.buffered)
     }
   })
 
   const decryptStream = new TransformStream({
     async transform (chunk: Uint8Array, controller) {
-      console.log(chunk.byteLength)
-
-      console.log(this)
+      console.log(chunk.byteLength, 'decrypt chunk')
 
       const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
       const decrypt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk)
@@ -148,11 +162,13 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
 
   const res = await fetch(streamUrl)
 
-  const resClone = new Response(res.body.pipeThrough(decryptStream), { headers: res.headers })
+  const resClone = new Response(res.body, { headers: res.headers })
 
   const length = Number(res.headers.get('content-length'))
   const extraBytes = Math.ceil(length / 1e7) * 16
   resClone.headers.set('content-length', String(length - extraBytes))
 
-  return new Response(resClone.body, { headers: resClone.headers })
+  const stream = res.body.pipeThrough(blockStream).pipeThrough(decryptStream)
+
+  return new Response(stream, { headers: resClone.headers })
 }, 'GET')
