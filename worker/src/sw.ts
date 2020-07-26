@@ -121,17 +121,21 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const rawKey = Uint8Array.from(atob(keyEnc), c => c.charCodeAt(0))
   const [, fileid] = url.pathname.match(/crypto\/([^/]+)/)
   const streamUrl = location.origin + '/stream/' + fileid
-
   const key = rawKey.slice(0, 16)
   const iv = rawKey.slice(-4)
 
   const res = await fetch(streamUrl)
 
   const resClone = new Response(res.body, { headers: res.headers })
-
   const length = Number(res.headers.get('content-length'))
   const extraBytes = Math.ceil(length / 5e5) * 16
   resClone.headers.set('content-length', String(length - extraBytes))
+
+  const mime = res.headers.get('content-type')
+  if (mime.includes('video') || mime.includes('audio')) {
+    const content = res.headers.get('content-disposition')
+    resClone.headers.set('content-disposition', content.replace('inline', 'attachment'))
+  }
 
   const reader = res.body.getReader()
   const stream = new ReadableStream({
