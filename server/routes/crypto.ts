@@ -21,7 +21,7 @@ router.get('/:filename', async (req, res) => {
     const isSafari = agent.includes('Safari') && !agent.includes('Chrome')
     const isFirefox = agent.includes('Firefox')
 
-    if (!isSafari && !isFirefox) {
+    if (!isSafari) {
       return nextjs.render(req, res, '/install')
     }
   }

@@ -59,7 +59,7 @@ const shouldCapture: RouteMatchCallback = ({ url }) => {
 }
 
 const shouldDecrypt: RouteMatchCallback = ({ url }) => {
-  return /crypto/.test(url.href) && !!TransformStream
+  return /crypto/.test(url.href) && !!ReadableStream
 }
 
 workbox.routing.registerRoute(shouldCapture, async route => {
@@ -125,47 +125,6 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const key = rawKey.slice(0, 16)
   const iv = rawKey.slice(-4)
 
-  class BlockStream extends TransformStream {
-    static size = 1e7 + 16
-    static buffered = new Uint8Array()
-  }
-
-  const blockStream = new BlockStream({
-    transform (chunk: Uint8Array, controller) {
-      var totalBuffer = new Uint8Array(BlockStream.buffered.byteLength + chunk.byteLength)
-      totalBuffer.set(BlockStream.buffered)
-      totalBuffer.set(chunk, BlockStream.buffered.byteLength)
-
-      console.log(totalBuffer.byteLength)
-
-      if (totalBuffer.byteLength >= BlockStream.size) {
-        const buffer = totalBuffer.slice(0, BlockStream.size)
-        const rest = totalBuffer.slice(BlockStream.size)
-
-        console.log({ buffer, rest })
-
-        BlockStream.buffered = rest
-        return controller.enqueue(buffer)
-      }
-
-      BlockStream.buffered = totalBuffer
-    },
-    flush (controller) {
-      controller.enqueue(BlockStream.buffered)
-    }
-  })
-
-  const decryptStream = new TransformStream({
-    async transform (chunk: Uint8Array, controller) {
-      console.log(chunk.byteLength, 'decrypt chunk')
-
-      const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
-      const decrypt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk)
-
-      controller.enqueue(new Uint8Array(decrypt))
-    }
-  })
-
   const res = await fetch(streamUrl)
 
   const resClone = new Response(res.body, { headers: res.headers })
@@ -174,7 +133,56 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const extraBytes = Math.ceil(length / 1e7) * 16
   resClone.headers.set('content-length', String(length - extraBytes))
 
-  const stream = res.body.pipeThrough(blockStream).pipeThrough(decryptStream)
+  const reader = res.body.getReader()
+  const stream = new ReadableStream({
+    start (controller) {
+      async function decryptChunk (chunk: Uint8Array) {
+        console.log('decrypting chunk', chunk.byteLength)
+        const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
+        const decrypt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk)
+        return new Uint8Array(decrypt)
+      }
+
+      async function push (rest?: Uint8Array) {
+        let { done, value: chunk } = await reader.read()
+
+        if (rest && chunk) {
+          console.log('chunk', rest.byteLength, 'collecting', chunk.byteLength, 'bytes')
+          const full = new Uint8Array(rest.byteLength + chunk.byteLength)
+          full.set(rest)
+          full.set(chunk, rest.byteLength)
+          chunk = full
+        }
+
+        if (!chunk) {
+          chunk = rest
+        }
+
+        const chunkSize = 1e7 + 16
+        if (chunk.byteLength >= 1e7 + 16) {
+          const cryptChunk = chunk.slice(0, chunkSize)
+          const rest = chunk.slice(chunkSize)
+
+          const decrypt = await decryptChunk(cryptChunk)
+          controller.enqueue(decrypt)
+          return push(rest)
+        }
+
+        if (done) {
+          console.log('last chunk', chunk.byteLength)
+          if (chunk.byteLength !== 0) {
+            const decrypt = await decryptChunk(chunk)
+            controller.enqueue(decrypt)
+          }
+          return controller.close()
+        }
+
+        push(chunk)
+      }
+
+      push()
+    }
+  })
 
   return new Response(stream, { headers: resClone.headers })
 }, 'GET')
