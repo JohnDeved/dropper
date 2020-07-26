@@ -98,7 +98,7 @@ uppy.on('complete', async result => {
   navigator.clipboard.writeText(clipboard.join('\n'))
   Notification.success({
     title: 'Copied to Clipboard',
-    description: clipboard
+    description: 'Copied your File URL to Clipboard'
   })
 })
 
