@@ -23,6 +23,12 @@ async function getCryptKey (fileId: string) {
   return db.get('cryptkeys', fileId)
 }
 
+async function getCryptSetting () {
+  const db = await getDB()
+  const { encryption } = await db.get('settings', 0)
+  return encryption
+}
+
 function getFileId (url: string) {
   return url.replace('/upload/tus/', '')
 }
@@ -102,6 +108,8 @@ export default function Index () {
 
     uppy.on('upload', () => setDisableCryptSetting(true))
     uppy.on('upload-success', () => setDisableCryptSetting(false))
+
+    getCryptSetting().then(sendEncryptionState)
   }, [Toggle])
 
   const EncryptInfo = (
@@ -126,11 +134,15 @@ export default function Index () {
     db.put(store, value, key)
   }
 
-  function setEncryption (state: boolean) {
-    setSetting('settings', { encryption: state }, 0)
+  function sendEncryptionState (state: boolean) {
     navigator.serviceWorker.ready.then(registration => {
       registration.active.postMessage(state)
     })
+  }
+
+  function setEncryption (state: boolean) {
+    setSetting('settings', { encryption: state }, 0)
+    sendEncryptionState(state)
   }
 
   function getToggle () {
