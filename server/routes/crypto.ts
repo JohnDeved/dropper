@@ -14,12 +14,9 @@ router.get('/:filename', async (req, res) => {
   const { filename } = req.params
   const { key: cryptString } = req.query
 
-  console.log(req.headers)
-
   if (req.headers?.accept?.includes('html')) {
     const agent = req.headers['user-agent']
     const isSafari = agent.includes('Safari') && !agent.includes('Chrome')
-    const isFirefox = agent.includes('Firefox')
 
     if (!isSafari) {
       return nextjs.render(req, res, '/install')
