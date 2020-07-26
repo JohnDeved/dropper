@@ -128,7 +128,9 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
 
   const blockStream = new BlockStream({
     transform (chunk: Uint8Array, controller) {
-      const totalBuffer = Uint8Array.from([...BlockStream.buffered, ...chunk])
+      var totalBuffer = new Uint8Array(BlockStream.buffered.byteLength + chunk.byteLength)
+      totalBuffer.set(BlockStream.buffered)
+      totalBuffer.set(chunk, BlockStream.buffered.byteLength)
 
       console.log(totalBuffer.byteLength)
 
