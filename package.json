@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.2",
+    "@sentry/browser": "^5.20.1",
     "@sentry/node": "^5.19.2",
     "@typegoose/typegoose": "^7.3.0",
     "@uppy/companion": "^2.0.0-alpha.8",

@@ -10,7 +10,8 @@ import crypto from './routes/crypto'
 
 if (!dev) {
   Sentry.init({
-    dsn: 'https://0ec6c589070e455c971972cb634fb8fc@sentry.up1.dev/4'
+    dsn: 'https://0ec6c589070e455c971972cb634fb8fc@sentry.up1.dev/4',
+    environment: 'server'
   })
 }
 
