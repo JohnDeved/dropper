@@ -148,7 +148,7 @@ workbox.routing.registerRoute(shouldCapture, async route => {
 }, 'HEAD')
 
 workbox.routing.registerRoute(shouldDecrypt, async route => {
-  const { url, request } = route
+  const { url } = route
 
   const hashRes = await fetch(url.href, { method: 'POST' })
   if (!hashRes.ok) return new Response('something went wrong on your end', { status: 400 })
@@ -165,7 +165,7 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const key = rawKey.slice(0, 16)
   const iv = rawKey.slice(-4)
 
-  const res = await fetch(streamUrl, { signal: request.signal })
+  const res = await fetch(streamUrl, { method: 'HEAD' })
   if (!res.ok) return res
 
   const resClone = new Response(res.body, { headers: res.headers })
@@ -179,51 +179,45 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
     resClone.headers.set('content-disposition', content.replace('inline', 'attachment'))
   }
 
-  const reader = res.body.getReader()
   const stream = new ReadableStream({
-    start (controller) {
-      async function decryptChunk (chunk: Uint8Array) {
-        console.log('decrypting chunk', chunk.byteLength)
-        const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
-        const decrypt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk)
-        return new Uint8Array(decrypt)
+    async start (controller) {
+      const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
+
+      function getChunkSize (buffered: number) {
+        const chunkSize = 5e5 + 16
+
+        if (buffered + chunkSize > length) {
+          return length - buffered
+        }
+
+        return chunkSize
       }
 
-      async function push (rest?: Uint8Array) {
-        let { done, value: chunk } = await reader.read()
+      async function push (buffered = 0) {
+        const chunkSize = getChunkSize(buffered)
 
-        if (rest && chunk) {
-          console.log('chunk', rest.byteLength, 'collecting', chunk.byteLength, 'bytes')
-          const full = new Uint8Array(rest.byteLength + chunk.byteLength)
-          full.set(rest)
-          full.set(chunk, rest.byteLength)
-          chunk = full
-        }
-
-        if (!chunk) {
-          chunk = rest
-        }
-
-        const chunkSize = 5e5 + 16
-        if (chunk.byteLength >= chunkSize) {
-          const cryptChunk = chunk.slice(0, chunkSize)
-          const rest = chunk.slice(chunkSize)
-
-          const decrypt = await decryptChunk(cryptChunk)
-          controller.enqueue(decrypt)
-          return push(rest)
-        }
-
-        if (done) {
-          console.log('last chunk', chunk.byteLength)
-          if (chunk.byteLength !== 0) {
-            const decrypt = await decryptChunk(chunk)
-            controller.enqueue(decrypt)
+        const offset = buffered
+        const res = await fetch(streamUrl, {
+          headers: {
+            Range: `bytes=${offset}-${chunkSize + offset - 1}`
           }
-          return controller.close()
+        })
+
+        const chunk = new Uint8Array(await res.arrayBuffer())
+
+        if (chunk.byteLength === chunkSize) {
+          console.log('decrypting chunk', offset, offset + chunk.byteLength)
+          const decrypt = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk))
+          controller.enqueue(decrypt)
+
+          if (offset + chunk.byteLength === length) {
+            return controller.close()
+          }
+
+          return push(chunkSize + buffered)
         }
 
-        push(chunk)
+        console.error('malformed chunk', chunk.byteLength, chunkSize)
       }
 
       push()
