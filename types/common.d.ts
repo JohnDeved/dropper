@@ -17,6 +17,10 @@ interface ISettings {
       embed: boolean
     }
   }
+  fragments: {
+    key: string
+    value: Uint8Array
+  }
 }
 
 export type KeysDB = ISettings & DBSchema

@@ -16,10 +16,15 @@ addEventListener('install', async () => {
 })
 
 function getDB () {
-  return idb.openDB<typeof idb.KeysDB>('dropper', 1, {
-    upgrade (db) {
-      db.createObjectStore('cryptkeys')
-      db.createObjectStore('settings')
+  return idb.openDB<typeof idb.KeysDB>('dropper', 2, {
+    upgrade (db, oldv) {
+      if (oldv < 1) {
+        db.createObjectStore('cryptkeys')
+        db.createObjectStore('settings')
+      }
+      if (oldv < 2) {
+        db.createObjectStore('fragments')
+      }
     }
   })
 }
@@ -109,6 +114,9 @@ workbox.routing.registerRoute(shouldCapture, async route => {
 
   const response = await fetch(new Request(req, { body: encrypt }))
 
+  const fragmentHash = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-256', encrypt))))
+  await db.put('fragments', new Uint8Array(encrypt), `${filename}-${fragmentHash}`)
+
   const res = new Response(null, {
     headers: response.headers,
     status: response.status
@@ -140,7 +148,7 @@ workbox.routing.registerRoute(shouldCapture, async route => {
 }, 'HEAD')
 
 workbox.routing.registerRoute(shouldDecrypt, async route => {
-  const { url } = route
+  const { url, request } = route
 
   const hashRes = await fetch(url.href, { method: 'POST' })
   if (!hashRes.ok) return new Response('something went wrong on your end', { status: 400 })
@@ -157,7 +165,7 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const key = rawKey.slice(0, 16)
   const iv = rawKey.slice(-4)
 
-  const res = await fetch(streamUrl)
+  const res = await fetch(streamUrl, { signal: request.signal })
   if (!res.ok) return res
 
   const resClone = new Response(res.body, { headers: res.headers })

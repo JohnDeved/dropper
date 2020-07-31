@@ -10,10 +10,15 @@ import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
 
 function getDB () {
-  return openDB<KeysDB>('dropper', 1, {
-    upgrade (db) {
-      db.createObjectStore('cryptkeys')
-      db.createObjectStore('settings')
+  return openDB<KeysDB>('dropper', 2, {
+    upgrade (db, oldv) {
+      if (oldv < 1) {
+        db.createObjectStore('cryptkeys')
+        db.createObjectStore('settings')
+      }
+      if (oldv < 2) {
+        db.createObjectStore('fragments')
+      }
     }
   })
 }
