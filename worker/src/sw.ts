@@ -115,6 +115,7 @@ workbox.routing.registerRoute(shouldCapture, async route => {
   const response = await fetch(new Request(req, { body: encrypt }))
 
   const fragmentHash = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-256', encrypt))))
+  console.log(fragmentHash)
   await db.put('fragments', new Uint8Array(encrypt), `${filename}-${fragmentHash}`)
 
   const res = new Response(null, {
@@ -168,7 +169,7 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const res = await fetch(streamUrl, { method: 'HEAD' })
   if (!res.ok) return res
 
-  const resClone = new Response(res.body, { headers: res.headers })
+  const resClone = new Response(null, { headers: res.headers })
   const length = Number(res.headers.get('content-length'))
   const extraBytes = getExtraBytes(length)
   resClone.headers.set('content-length', String(length - extraBytes))
@@ -179,9 +180,14 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
     resClone.headers.set('content-disposition', content.replace('inline', 'attachment'))
   }
 
+  const fragmentReq = await fetch(streamUrl, { method: 'POST' })
+  const fragments: string[] = await fragmentReq.json()
+
   const stream = new ReadableStream({
     async start (controller) {
+      const db = await getDB()
       const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
+      let chunkNum = 0
 
       function getChunkSize (offset: number) {
         const chunkSize = 5e5 + 16
@@ -189,16 +195,28 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
         return chunkSize
       }
 
-      async function push (offset = 0) {
-        const chunkSize = getChunkSize(offset)
+      async function getChunk (offset: number, chunkSize: number) {
+        const fragmentHash = fragments?.[chunkNum]
+        chunkNum++
+
+        if (fragmentHash) {
+          const fragmentData = db.get('fragments', `${fileid}-${fragmentHash}`)
+          if (fragmentData) {
+            return fragmentData
+          }
+        }
 
         const res = await fetch(streamUrl, {
           headers: {
             Range: `bytes=${offset}-${chunkSize + offset - 1}`
           }
         })
+        return new Uint8Array(await res.arrayBuffer())
+      }
 
-        const chunk = new Uint8Array(await res.arrayBuffer())
+      async function push (offset = 0) {
+        const chunkSize = getChunkSize(offset)
+        const chunk = await getChunk(offset, chunkSize)
 
         if (chunk.byteLength === chunkSize) {
           console.log('decrypting chunk', offset, offset + chunk.byteLength)

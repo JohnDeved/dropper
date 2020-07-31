@@ -52,4 +52,13 @@ router.get('/:filename', async (req, res, next) => {
   next()
 }, proxy)
 
+router.post('/:filename', async (req, res, next) => {
+  const { filename } = req.params
+
+  const file = await fileModel.findOne({ _id: filename })
+  if (file?.fragments?.length > 0) return res.json(file.fragments.flat())
+  if (!file) return res.sendStatus(404)
+  res.sendStatus(400)
+})
+
 export default router
