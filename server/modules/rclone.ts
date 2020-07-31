@@ -6,7 +6,13 @@ const rclone = dev ? 'rclone' : './rclone'
 export function serve () {
   const log = chunk => process.stdout.write(chunk.toString())
 
-  const serve = spawn(rclone, ['--config=./rclone.conf', 'serve', 'http', 'dropper:', '--baseurl', '/stream', '--poll-interval', '5s'])
+  const serve = spawn(rclone, [
+    '--config=./rclone.conf', 'serve', 'http', 'dropper:', '-vv',
+    '--baseurl', '/stream',
+    '--poll-interval', '5s',
+    '--cache-dir', 'tmp/cache',
+    '--vfs-cache-mode', 'full'
+  ])
   serve.stdout.on('data', log)
   serve.stderr.on('data', log)
 }

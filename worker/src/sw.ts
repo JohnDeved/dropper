@@ -183,20 +183,15 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
     async start (controller) {
       const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
 
-      function getChunkSize (buffered: number) {
+      function getChunkSize (offset: number) {
         const chunkSize = 5e5 + 16
-
-        if (buffered + chunkSize > length) {
-          return length - buffered
-        }
-
+        if (offset + chunkSize > length) return length - offset
         return chunkSize
       }
 
-      async function push (buffered = 0) {
-        const chunkSize = getChunkSize(buffered)
+      async function push (offset = 0) {
+        const chunkSize = getChunkSize(offset)
 
-        const offset = buffered
         const res = await fetch(streamUrl, {
           headers: {
             Range: `bytes=${offset}-${chunkSize + offset - 1}`
@@ -210,11 +205,8 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
           const decrypt = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk))
           controller.enqueue(decrypt)
 
-          if (offset + chunk.byteLength === length) {
-            return controller.close()
-          }
-
-          return push(chunkSize + buffered)
+          if (offset + chunk.byteLength === length) return controller.close()
+          return push(chunkSize + offset)
         }
 
         console.error('malformed chunk', chunk.byteLength, chunkSize)

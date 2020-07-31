@@ -28,6 +28,8 @@ const proxy = createProxyMiddleware({
 router.get('/:filename', async (req, res, next) => {
   const { filename } = req.params
 
+  if (req.get('range')) return next()
+
   const exist = await exists(filename)
   if (!exist) return nextjs.render404(req, res)
 
