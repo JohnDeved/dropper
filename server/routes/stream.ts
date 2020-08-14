@@ -28,6 +28,8 @@ const proxy = createProxyMiddleware({
 router.get('/:filename', async (req, res, next) => {
   const { filename } = req.params
 
+  if (req.get('range')) return next()
+
   const exist = await exists(filename)
   if (!exist) return nextjs.render404(req, res)
 
@@ -49,5 +51,14 @@ router.get('/:filename', async (req, res, next) => {
   req.params.filename = file.filename
   next()
 }, proxy)
+
+router.post('/:filename', async (req, res, next) => {
+  const { filename } = req.params
+
+  const file = await fileModel.findOne({ _id: filename })
+  if (file?.fragments?.length > 0) return res.json(file.fragments.flat())
+  if (!file) return res.sendStatus(404)
+  res.sendStatus(400)
+})
 
 export default router

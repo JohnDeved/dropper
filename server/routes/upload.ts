@@ -6,8 +6,8 @@ import express from 'express'
 import { move } from '../modules/rclone'
 import { fileModel } from '../modules/mongo'
 import parseFile from 'parse-filepath'
-import { promisify } from 'util'
 import { Buffer } from 'buffer'
+import { PassThrough } from 'stream'
 
 const router = express.Router()
 
@@ -98,17 +98,26 @@ router.patch('/tus/:filename', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.setHeader('Upload-Offset', total)
 
+  const pass = new PassThrough()
+  const hash = crypto.createHash('sha256')
   const stream = fs.createWriteStream(path, { start: offset, flags: 'r+' })
-  req.pipe(stream)
-  req.on('end', async () => {
+
+  req.pipe(pass)
+  pass.pipe(hash)
+  pass.pipe(stream)
+
+  pass.once('end', async () => {
+    hash.end()
+
     const file = await fileModel.findOne({ _id: filename })
+    file.fragments.push(hash.digest('base64'))
 
     if (file.length === total) {
       file.uploaded = true
       await move(path)
-      await file.save()
     }
 
+    await file.save()
     res.sendStatus(204)
   })
 })

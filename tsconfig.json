@@ -5,7 +5,7 @@
     "jsx": "preserve",
     "lib": [
       "dom",
-      "es2017"
+      "ES2019"
     ],
     "moduleResolution": "node",
     "strict": true,

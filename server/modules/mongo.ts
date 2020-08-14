@@ -26,6 +26,9 @@ export class FileClass {
   @prop()
   embeddable?: boolean
 
+  @prop({ default: [] })
+  fragments?: string[]
+
   @prop({ default: () => new Date() })
   date?: Date
 

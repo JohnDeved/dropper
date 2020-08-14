@@ -1,8 +1,6 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js')
 importScripts('https://cdn.jsdelivr.net/npm/idb@5.0.4/build/iife/with-async-ittr-min.js')
 
-// todo: stop download after abort
-
 workbox.core.skipWaiting()
 workbox.core.clientsClaim()
 
@@ -18,10 +16,15 @@ addEventListener('install', async () => {
 })
 
 function getDB () {
-  return idb.openDB<typeof idb.KeysDB>('dropper', 1, {
-    upgrade (db) {
-      db.createObjectStore('cryptkeys')
-      db.createObjectStore('settings')
+  return idb.openDB<typeof idb.KeysDB>('dropper', 2, {
+    upgrade (db, oldv) {
+      if (oldv < 1) {
+        db.createObjectStore('cryptkeys')
+        db.createObjectStore('settings')
+      }
+      if (oldv < 2) {
+        db.createObjectStore('fragments')
+      }
     }
   })
 }
@@ -111,6 +114,10 @@ workbox.routing.registerRoute(shouldCapture, async route => {
 
   const response = await fetch(new Request(req, { body: encrypt }))
 
+  const fragmentHash = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-256', encrypt))))
+  console.log(fragmentHash)
+  await db.put('fragments', new Uint8Array(encrypt), `${filename}-${fragmentHash}`)
+
   const res = new Response(null, {
     headers: response.headers,
     status: response.status
@@ -159,10 +166,10 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
   const key = rawKey.slice(0, 16)
   const iv = rawKey.slice(-4)
 
-  const res = await fetch(streamUrl)
+  const res = await fetch(streamUrl, { method: 'HEAD' })
   if (!res.ok) return res
 
-  const resClone = new Response(res.body, { headers: res.headers })
+  const resClone = new Response(null, { headers: res.headers })
   const length = Number(res.headers.get('content-length'))
   const extraBytes = getExtraBytes(length)
   resClone.headers.set('content-length', String(length - extraBytes))
@@ -173,51 +180,54 @@ workbox.routing.registerRoute(shouldDecrypt, async route => {
     resClone.headers.set('content-disposition', content.replace('inline', 'attachment'))
   }
 
-  const reader = res.body.getReader()
+  const fragmentReq = await fetch(streamUrl, { method: 'POST' })
+  const fragments: string[] = await fragmentReq.json()
+
   const stream = new ReadableStream({
-    start (controller) {
-      async function decryptChunk (chunk: Uint8Array) {
-        console.log('decrypting chunk', chunk.byteLength)
-        const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
-        const decrypt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk)
-        return new Uint8Array(decrypt)
+    async start (controller) {
+      const db = await getDB()
+      const cryptkey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, ['decrypt'])
+      let chunkNum = 0
+
+      function getChunkSize (offset: number) {
+        const chunkSize = 5e5 + 16
+        if (offset + chunkSize > length) return length - offset
+        return chunkSize
       }
 
-      async function push (rest?: Uint8Array) {
-        let { done, value: chunk } = await reader.read()
+      async function getChunk (offset: number, chunkSize: number) {
+        const fragmentHash = fragments?.[chunkNum]
+        chunkNum++
 
-        if (rest && chunk) {
-          console.log('chunk', rest.byteLength, 'collecting', chunk.byteLength, 'bytes')
-          const full = new Uint8Array(rest.byteLength + chunk.byteLength)
-          full.set(rest)
-          full.set(chunk, rest.byteLength)
-          chunk = full
-        }
-
-        if (!chunk) {
-          chunk = rest
-        }
-
-        const chunkSize = 5e5 + 16
-        if (chunk.byteLength >= chunkSize) {
-          const cryptChunk = chunk.slice(0, chunkSize)
-          const rest = chunk.slice(chunkSize)
-
-          const decrypt = await decryptChunk(cryptChunk)
-          controller.enqueue(decrypt)
-          return push(rest)
-        }
-
-        if (done) {
-          console.log('last chunk', chunk.byteLength)
-          if (chunk.byteLength !== 0) {
-            const decrypt = await decryptChunk(chunk)
-            controller.enqueue(decrypt)
+        if (fragmentHash) {
+          const fragmentData = db.get('fragments', `${fileid}-${fragmentHash}`)
+          if (fragmentData) {
+            return fragmentData
           }
-          return controller.close()
         }
 
-        push(chunk)
+        const res = await fetch(streamUrl, {
+          headers: {
+            Range: `bytes=${offset}-${chunkSize + offset - 1}`
+          }
+        })
+        return new Uint8Array(await res.arrayBuffer())
+      }
+
+      async function push (offset = 0) {
+        const chunkSize = getChunkSize(offset)
+        const chunk = await getChunk(offset, chunkSize)
+
+        if (chunk.byteLength === chunkSize) {
+          console.log('decrypting chunk', offset, offset + chunk.byteLength)
+          const decrypt = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptkey, chunk))
+          controller.enqueue(decrypt)
+
+          if (offset + chunk.byteLength === length) return controller.close()
+          return push(chunkSize + offset)
+        }
+
+        console.error('malformed chunk', chunk.byteLength, chunkSize)
       }
 
       push()
