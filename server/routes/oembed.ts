@@ -28,8 +28,8 @@ router.get('/', async (req, res) => {
       provider_url: 'https://dropper.link/',
       html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
       url: fileUrl,
-      height: Number(maxheight) || 1080,
       width: Number(maxwidth) || 1920,
+      height: Number(maxheight) || 1080,
       thumbnail_url: 'https://dropper.link/thumbnail.png',
       thumbnail_width: 751,
       thumbnail_height: 500
@@ -45,8 +45,8 @@ router.get('/', async (req, res) => {
       provider_url: 'https://dropper.link/',
       html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
       url: fileUrl,
-      height: Number(maxheight) || 1080,
       width: Number(maxwidth) || 1920,
+      height: Number(maxheight) || 1080,
       thumbnail_url: embedUrl
     })
   }
@@ -59,8 +59,8 @@ router.get('/', async (req, res) => {
     provider_url: 'https://dropper.link/',
     html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1080' height='1920' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
     url: fileUrl,
-    height: Number(maxheight) || 1080,
     width: Number(maxwidth) || 1920,
+    height: Number(maxheight) || 1080,
     thumbnail_url: 'https://dropper.link/thumbnail.png',
     thumbnail_width: 751,
     thumbnail_height: 500
