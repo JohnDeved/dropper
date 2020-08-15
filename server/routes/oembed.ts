@@ -28,8 +28,6 @@ router.get('/', async (req, res) => {
       provider_url: 'https://dropper.link/',
       html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1920' height='1080' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
       url: fileUrl,
-      width: Number(maxwidth) || 1920,
-      height: Number(maxheight) || 1080,
       thumbnail_url: thumbUrl
     })
   }
@@ -43,8 +41,6 @@ router.get('/', async (req, res) => {
       provider_url: 'https://dropper.link/',
       html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1920' height='1080' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
       url: fileUrl,
-      width: Number(maxwidth) || 1920,
-      height: Number(maxheight) || 1080,
       thumbnail_url: embedUrl
     })
   }
@@ -57,8 +53,6 @@ router.get('/', async (req, res) => {
     provider_url: 'https://dropper.link/',
     html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1920' height='1080' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
     url: fileUrl,
-    width: Number(maxwidth) || 1920,
-    height: Number(maxheight) || 1080,
     thumbnail_url: 'https://dropper.link/thumbnail.jpg'
   })
 })
