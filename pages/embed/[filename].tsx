@@ -82,7 +82,7 @@ export default function Embed ({ filename, name, size }: IProps) {
     return <>
       <title>{name} ({size})</title>
 
-      <meta property="og:url" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:url" content={`https://dropper.link/embed/${filename}`}/>
       <meta property="og:title" content={name}/>
       <meta property="og:description" content={size}/>
       <meta name="twitter:title" content={name}/>
