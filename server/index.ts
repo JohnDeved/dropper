@@ -1,8 +1,9 @@
 import express from 'express'
+import morgan from 'morgan'
+import * as Sentry from '@sentry/node'
 import { serve } from './modules/rclone'
 import upload from './routes/upload'
 import stream from './routes/stream'
-import * as Sentry from '@sentry/node'
 import { nextjs, handle } from './modules/next'
 import oembed from './routes/oembed'
 import { dev } from './modules/config'
@@ -19,6 +20,8 @@ serve()
 
 nextjs.prepare().then(() => {
   const app = express()
+
+  app.use(morgan('dev'))
 
   app.use('/upload', upload)
   app.use('/stream', stream)
