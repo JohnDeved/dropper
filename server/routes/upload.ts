@@ -8,16 +8,9 @@ import { fileModel } from '../modules/mongo'
 import parseFile from 'parse-filepath'
 import { Buffer } from 'buffer'
 import { PassThrough } from 'stream'
+import { fsExists } from '../modules/fsExtra'
 
 const router = express.Router()
-
-function fsExists (path: string) {
-  return new Promise((resolve) => {
-    fs.promises.access(path)
-      .then(() => resolve(true))
-      .catch(() => resolve(false))
-  })
-}
 
 router.post('/xhr', (req, res) => {
   const busboy = new Busboy({ headers: req.headers })

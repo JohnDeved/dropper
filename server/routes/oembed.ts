@@ -1,6 +1,6 @@
 import express from 'express'
 import { fileModel } from '../modules/mongo'
-import parseFilepath from 'parse-filepath'
+import { isVideo, isImage } from '../modules/fsExtra'
 
 const router = express.Router()
 
@@ -15,11 +15,10 @@ router.get('/', async (req, res) => {
 
   if (!file) return res.sendStatus(404)
 
-  const { ext } = parseFilepath(filename)
   const fileUrl = `https://dropper.link/stream/${filename}`
   const embedUrl = `https://dropper.link/embed/${filename}`
 
-  if (['.mp4', '.webm'].includes(ext)) {
+  if (isVideo(filename)) {
     return res.json({
       version: '1.0',
       type: 'video',
@@ -36,7 +35,7 @@ router.get('/', async (req, res) => {
     })
   }
 
-  if (['.png', '.jpg', '.jpeg', '.svg', '.gif', '.bmp', '.apng', '.ico', '.tif', '.tiff', '.webp'].includes(ext)) {
+  if (isImage(filename)) {
     return res.json({
       version: '1.0',
       type: 'photo',
