@@ -73,10 +73,8 @@ export default function Embed ({ filename, name, size }: IProps) {
           <meta property="og:video:url" content={`https://dropper.link/embed/${filename}`}/>
           <meta property="og:video:secure_url" content={`https://dropper.link/embed/${filename}`}/>
           <meta property="og:video:type" content="text/html"/>
-          <meta property="og:video:type" content="video/mp4"/>
           <meta property="og:video:width" content="1280"/>
           <meta property="og:video:height" content="720"/>
-          <meta property="og:video:duration" content="2.82"/>
           <meta property="og:video:iframe" content={`https://dropper.link/embed/${filename}`}/>
         </>
       }
