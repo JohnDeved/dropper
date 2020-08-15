@@ -26,6 +26,12 @@ export class FileClass {
   @prop()
   embeddable?: boolean
 
+  @prop()
+  width?: string
+
+  @prop()
+  height?: string
+
   @prop({ default: [] })
   fragments?: string[]
 
