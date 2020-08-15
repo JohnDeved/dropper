@@ -1,11 +1,9 @@
 import './style.sass'
 import 'rsuite/lib/styles/themes/dark/index.less'
-import Head from 'next/head'
 import { useEffect } from 'react'
 import { Workbox } from 'workbox-window'
 import * as Sentry from '@sentry/browser'
 
-// This default export is required in a new `pages/_app.js` file.
 export default function MyApp ({ Component, pageProps }) {
   useEffect(() => {
     if (!location.hostname.includes('localhost')) {

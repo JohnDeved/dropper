@@ -5,6 +5,7 @@ import { isVideo } from '../../server/modules/mime'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { fileModel } from '../../server/modules/mongo'
 import bytes from 'bytes'
+import { Button } from 'rsuite'
 
 interface IProps {
   filename: string
@@ -46,7 +47,12 @@ export default function Embed ({ filename, name, size }: IProps) {
     }
 
     if (filename) {
-      return <meta httpEquiv="Refresh" content={`0; url='${streamRoute}'`} />
+      return (
+        <div className="content">
+          <meta httpEquiv="Refresh" content={`0; url='${streamRoute}'`} />
+          <Button href={streamRoute} appearance="primary">Download</Button>
+        </div>
+      )
     }
   }
 
@@ -113,8 +119,13 @@ export default function Embed ({ filename, name, size }: IProps) {
         }
 
         html,body {
-          width: 100%
-          height: 100%
+          width: 100%;
+          height: 100%;
+        }
+
+        .content {
+          display: flex;
+          justify-content: center;
         }
       `}</style>
     </Head>
