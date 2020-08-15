@@ -66,12 +66,16 @@ export default function Embed ({ filename, name, size }: IProps) {
           <meta name="twitter:card" content="player"/>
           <meta name="twitter:url" content={`https://dropper.link/embed/${filename}`}/>
           <meta name="twitter:player" content={`https://dropper.link/embed/${filename}`}/>
+          <meta name="twitter:player:width" content="1280"/>
+          <meta name="twitter:player:height" content="720"/>
 
           <meta property="og:video" content={`https://dropper.link/stream/${filename}`}/>
           <meta property="og:video:url" content={`https://dropper.link/stream/${filename}`}/>
           <meta property="og:video:secure_url" content={`https://dropper.link/stream/${filename}`}/>
           <meta property="og:video:type" content="video/mp4"/>
 
+          <meta property="og:video:width" content="1280"/>
+          <meta property="og:video:height" content="720"/>
           <meta property="og:video:iframe" content={`https://dropper.link/embed/${filename}`}/>
         </>
       }
@@ -87,8 +91,12 @@ export default function Embed ({ filename, name, size }: IProps) {
       <meta name="twitter:description" content={size}/>
 
       <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:image:width" content="1280"/>
+      <meta property="og:image:height" content="720"/>
       <meta property="og:image:secure_url" content={`https://dropper.link/stream/thumb/${filename}`}/>
       <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:image:width" content="1280"/>
+      <meta property="og:image:height" content="720"/>
       <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
       <meta name="twitter:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
       <meta name="twitter:image:src" content={`https://dropper.link/stream/thumb/${filename}`}/>
