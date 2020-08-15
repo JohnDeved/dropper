@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import { useRef, useEffect } from 'react'
 import Head from 'next/head'
 import { isVideo } from '../../server/modules/mime'
