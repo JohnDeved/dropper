@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { useRef, useEffect } from 'react'
 import Head from 'next/head'
-import { isVideo } from '../../server/modules/fsExtra'
+import { isVideo } from '../../server/modules/mime'
 
 export default function Embed () {
   const router = useRouter()
@@ -19,7 +19,7 @@ export default function Embed () {
 
   function getEmbed () {
     if (!Array.isArray(filename)) {
-      if (isVideo(filename)) {
+      if (filename && isVideo(filename)) {
         return <video className="embed" ref={video} controls src={streamRoute}></video>
       }
     }
@@ -31,7 +31,7 @@ export default function Embed () {
 
   function getMeta () {
     function getVideMeta () {
-      if (!Array.isArray(filename) && isVideo(filename)) {
+      if (!Array.isArray(filename) && filename && isVideo(filename)) {
         return <>
           <meta name="twitter:card" content="player"/>
           <meta name="twitter:title" content={filename}/>

@@ -1,6 +1,6 @@
 import express from 'express'
 import { fileModel } from '../modules/mongo'
-import { isVideo, isImage } from '../modules/fsExtra'
+import { isVideo, isImage } from '../modules/mime'
 
 const router = express.Router()
 
