@@ -2,12 +2,26 @@ import { useRouter } from 'next/router'
 import { useRef, useEffect } from 'react'
 import Head from 'next/head'
 import { isVideo } from '../../server/modules/mime'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 
-export default function Embed () {
+interface IProps {
+  filename: string | string[]
+}
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { filename } = context.query
+
+  return {
+    props: {
+      filename
+    }
+  }
+}
+
+export default function Embed ({ filename }: IProps) {
   const router = useRouter()
   const video = useRef()
 
-  const { filename } = router.query
   const streamRoute = `/stream/${filename}`
 
   useEffect(() => {
