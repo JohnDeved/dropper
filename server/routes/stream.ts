@@ -7,7 +7,6 @@ import { exists } from '../modules/rclone'
 import { isVideo, isImage } from '../modules/fsExtra'
 import { getVideoThumb } from '../modules/ffmpeg'
 import path from 'path'
-import { url } from 'inspector'
 
 const router = express.Router()
 const serveUrl = 'http://127.0.0.1:8080'

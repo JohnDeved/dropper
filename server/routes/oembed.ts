@@ -17,6 +17,7 @@ router.get('/', async (req, res) => {
 
   const fileUrl = `https://dropper.link/stream/${filename}`
   const embedUrl = `https://dropper.link/embed/${filename}`
+  const thumbUrl = `https://dropper.link/stream/thumb/${filename}`
 
   if (isVideo(filename)) {
     return res.json({
@@ -29,9 +30,7 @@ router.get('/', async (req, res) => {
       url: fileUrl,
       width: Number(maxwidth) || 1920,
       height: Number(maxheight) || 1080,
-      thumbnail_url: 'https://dropper.link/thumbnail.png',
-      thumbnail_width: 751,
-      thumbnail_height: 500
+      thumbnail_url: thumbUrl
     })
   }
 
@@ -60,9 +59,7 @@ router.get('/', async (req, res) => {
     url: fileUrl,
     width: Number(maxwidth) || 1920,
     height: Number(maxheight) || 1080,
-    thumbnail_url: 'https://dropper.link/thumbnail.png',
-    thumbnail_width: 751,
-    thumbnail_height: 500
+    thumbnail_url: 'https://dropper.link/thumbnail.svg'
   })
 })
 
