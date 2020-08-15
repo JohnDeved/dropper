@@ -47,28 +47,32 @@ router.get('/thumb/:filename', async (req, res, next) => {
 router.get('/:filename', async (req, res, next) => {
   const { filename } = req.params
 
-  if (req.get('range')) return next()
+  if (req.headers?.accept?.includes('html')) {
+    if (req.get('range')) return next()
 
-  const exist = await exists(filename)
-  if (!exist) return nextjs.render404(req, res)
+    const exist = await exists(filename)
+    if (!exist) return nextjs.render404(req, res)
 
-  const file = await fileModel.findOne({ _id: req.params.filename })
-  const response = await fetch(`${serveUrl}/stream/${filename}`, { method: 'HEAD' })
+    const file = await fileModel.findOne({ _id: req.params.filename })
+    const response = await fetch(`${serveUrl}/stream/${filename}`, { method: 'HEAD' })
 
-  if (!response.ok && file) {
-    res.statusCode = 425
-    res.statusMessage = 'This file is still beeing processed.'
-    return nextjs.render(req, res, '/_error')
+    if (!response.ok && file) {
+      res.statusCode = 425
+      res.statusMessage = 'This file is still beeing processed.'
+      return nextjs.render(req, res, '/_error')
+    }
+
+    if (!file) return next()
+
+    file.downloads++
+    file.uploaded = true
+    await file.save()
+
+    req.params.filename = file.filename
+    return next()
   }
 
-  if (!file) return next()
-
-  file.downloads++
-  file.uploaded = true
-  await file.save()
-
-  req.params.filename = file.filename
-  next()
+  return nextjs.render(req, res, `/embed/${filename}`)
 }, proxy)
 
 router.post('/:filename', async (req, res, next) => {
