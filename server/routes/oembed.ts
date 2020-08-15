@@ -17,7 +17,6 @@ router.get('/', async (req, res) => {
 
   if (!file) return res.sendStatus(404)
 
-  const fileUrl = `https://dropper.link/stream/${filename}`
   const embedUrl = `https://dropper.link/embed/${filename}`
   const thumbUrl = `https://dropper.link/stream/thumb/${filename}`
 
@@ -29,7 +28,6 @@ router.get('/', async (req, res) => {
       provider_name: 'Dropper',
       provider_url: 'https://dropper.link/',
       html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='${width}' height='${height}' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
-      url: fileUrl,
       width: Number(maxwidth) || Number(width),
       height: Number(maxheight) || Number(height),
       thumbnail_url: thumbUrl
@@ -44,7 +42,6 @@ router.get('/', async (req, res) => {
       provider_name: 'Dropper',
       provider_url: 'https://dropper.link/',
       html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='${width}' height='${height}' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
-      url: fileUrl,
       width: Number(maxwidth) || Number(width),
       height: Number(maxheight) || Number(height),
       thumbnail_url: embedUrl
@@ -58,7 +55,6 @@ router.get('/', async (req, res) => {
     provider_name: 'Dropper',
     provider_url: 'https://dropper.link/',
     html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='${width}' height='${height}' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
-    url: fileUrl,
     width: Number(maxwidth) || Number(width),
     height: Number(maxheight) || Number(height),
     thumbnail_url: 'https://dropper.link/thumbnail.jpg'
