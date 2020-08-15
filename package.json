@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/plugin-proposal-decorators": "^7.10.5",
     "@peculiar/webcrypto": "^1.1.2",
     "@sentry/browser": "^5.20.1",
     "@sentry/node": "^5.19.2",
@@ -23,6 +24,7 @@
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-less": "^1.0.1",
     "@zeit/next-sass": "^1.0.1",
+    "babel-plugin-transform-typescript-metadata": "^0.3.0",
     "base64url": "^3.0.1",
     "block-stream2": "^2.0.0",
     "busboy": "^0.3.1",
@@ -30,6 +32,7 @@
     "concurrently": "^5.2.0",
     "cross-env": "^7.0.2",
     "express": "^4.17.1",
+    "ffmpeg-static": "^4.2.6",
     "hbs": "^4.1.1",
     "http-proxy-middleware": "^1.0.5",
     "idb": "^5.0.4",

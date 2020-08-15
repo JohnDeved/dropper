@@ -4,6 +4,10 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
 import { fileModel } from '../modules/mongo'
 import { nextjs } from '../modules/next'
 import { exists } from '../modules/rclone'
+import { isVideo, isImage } from '../modules/fsExtra'
+import { getVideoThumb } from '../modules/ffmpeg'
+import path from 'path'
+import { url } from 'inspector'
 
 const router = express.Router()
 const serveUrl = 'http://127.0.0.1:8080'
@@ -23,6 +27,22 @@ const proxy = createProxyMiddleware({
     if (filename) proxyRes.headers['content-disposition'] += `filename=${filename}`
     proxyRes.headers['cache-control'] = 'public'
   }
+})
+
+router.get('/thumb/:filename', async (req, res, next) => {
+  const { filename } = req.params
+
+  if (isVideo(filename)) {
+    const thumb = await getVideoThumb(filename)
+    return res.sendFile(path.resolve(thumb))
+  }
+
+  if (isImage(filename)) {
+    const thumb = await fetch(`http://127.0.0.1:8080/stream/${filename}`)
+    return thumb.body.pipe(res)
+  }
+
+  return res.sendFile(path.resolve('public/thumbnail.svg'))
 })
 
 router.get('/:filename', async (req, res, next) => {
