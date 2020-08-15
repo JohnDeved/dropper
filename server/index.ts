@@ -8,6 +8,7 @@ import { nextjs, handle } from './modules/next'
 import oembed from './routes/oembed'
 import { dev } from './modules/config'
 import crypto from './routes/crypto'
+import cors from 'cors'
 
 if (!dev) {
   Sentry.init({
@@ -22,6 +23,7 @@ nextjs.prepare().then(() => {
   const app = express()
 
   app.use(morgan('dev'))
+  app.use(cors())
 
   app.use('/upload', upload)
   app.use('/stream', stream)
