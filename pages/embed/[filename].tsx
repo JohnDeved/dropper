@@ -57,7 +57,7 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
           <meta httpEquiv="Refresh" content={`0; url='${streamRoute}'`} />
           <div className="download">
             <img height="150px" src={`/stream/thumb/${filename}`}/>
-            <Button style={{ borderRadius: 0 }} href={streamRoute} target="_blank" appearance="primary">Download ({size})</Button>
+            <Button style={{ borderRadius: 0 }} onClick={() => open(streamRoute, '_blank')} appearance="primary">Download ({size})</Button>
           </div>
         </div>
       )
