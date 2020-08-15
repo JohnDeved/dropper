@@ -276,9 +276,7 @@ export default function Index () {
             <p>easy file uploads</p>
           </div>
           <div className="settings">
-            <Badge content="NEW">
-              <IconButton onClick={() => setModalOpen(true)} icon={<Icon icon="cog"/>} circle size="lg" />
-            </Badge>
+            <IconButton onClick={() => setModalOpen(true)} icon={<Icon icon="cog"/>} circle size="lg" />
           </div>
         </div>
 
@@ -305,7 +303,7 @@ export default function Index () {
           </Modal.Header>
           <Modal.Body>
             <div className="setting">
-              <label>Encryption</label>
+              <label>Encryption (beta)</label>
               {getEncryptionToggle()}
               <Whisper placement="top" trigger="hover" speaker={encryptInfo}>
                 <Icon className="info" icon="question2"></Icon>
