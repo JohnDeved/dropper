@@ -3,23 +3,32 @@ import { useRef, useEffect } from 'react'
 import Head from 'next/head'
 import { isVideo } from '../../server/modules/mime'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { fileModel } from '../../server/modules/mongo'
+import bytes from 'bytes'
 
 interface IProps {
-  filename: string | string[]
+  filename: string
+  name: string
+  size: string
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { filename } = context.query
 
-  return {
-    props: {
-      filename
+  if (!Array.isArray(filename) && filename) {
+    const file = await fileModel.findOne({ _id: filename })
+
+    return {
+      props: {
+        filename,
+        name: file.filename,
+        size: bytes(file.length)
+      }
     }
   }
 }
 
-export default function Embed ({ filename }: IProps) {
-  const router = useRouter()
+export default function Embed ({ filename, name, size }: IProps) {
   const video = useRef()
 
   const streamRoute = `/stream/${filename}`
@@ -32,10 +41,8 @@ export default function Embed ({ filename }: IProps) {
   })
 
   function getEmbed () {
-    if (!Array.isArray(filename)) {
-      if (filename && isVideo(filename)) {
-        return <video className="embed" ref={video} controls src={streamRoute}></video>
-      }
+    if (isVideo(filename)) {
+      return <video className="embed" ref={video} controls src={streamRoute}></video>
     }
 
     if (filename) {
@@ -45,14 +52,12 @@ export default function Embed ({ filename }: IProps) {
 
   function getMeta () {
     function getVideMeta () {
-      if (!Array.isArray(filename) && filename && isVideo(filename)) {
+      if (isVideo(filename)) {
         return <>
+          <meta property="og:type" content="video"/>
           <meta name="twitter:card" content="player"/>
-          <meta name="twitter:title" content={filename}/>
           <meta name="twitter:url" content={`https://dropper.link/embed/${filename}`}/>
           <meta name="twitter:player" content={`https://dropper.link/embed/${filename}`}/>
-          <meta name="twitter:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
-          <meta name="twitter:image:src" content={`https://dropper.link/stream/thumb/${filename}`}/>
           <meta name="twitter:player:width" content="708"/>
           <meta name="twitter:player:height" content="382"/>
 
@@ -67,24 +72,28 @@ export default function Embed ({ filename }: IProps) {
       }
     }
 
-    if (!Array.isArray(filename)) {
-      return <>
-        <meta property="og:type" content="video"/>
-        <meta property="og:url" content={`https://dropper.link/stream/thumb/${filename}`}/>
-        <meta property="og:title" content={filename}/>
+    return <>
+      <title>{name} ({size})</title>
 
-        <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
-        <meta property="og:image:width" content="640"/>
-        <meta property="og:image:height" content="345"/>
-        <meta property="og:image:secure_url" content={`https://dropper.link/stream/thumb/${filename}`}/>
-        <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
-        <meta property="og:image:width" content="640"/>
-        <meta property="og:image:height" content="345"/>
-        <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:url" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:title" content={name}/>
+      <meta property="og:description" content={size}/>
+      <meta name="twitter:title" content={name}/>
+      <meta name="twitter:description" content={size}/>
 
-        {getVideMeta()}
-      </>
-    }
+      <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:image:width" content="640"/>
+      <meta property="og:image:height" content="345"/>
+      <meta property="og:image:secure_url" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:image:width" content="640"/>
+      <meta property="og:image:height" content="345"/>
+      <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta name="twitter:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta name="twitter:image:src" content={`https://dropper.link/stream/thumb/${filename}`}/>
+
+      {getVideMeta()}
+    </>
   }
 
   return <div>
