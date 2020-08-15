@@ -50,7 +50,7 @@ export default function Embed ({ filename, name, size }: IProps) {
       return (
         <div className="content">
           <meta httpEquiv="Refresh" content={`0; url='${streamRoute}'`} />
-          <Button href={streamRoute} appearance="primary">Download</Button>
+          <Button href={streamRoute} target="_blank" appearance="primary">Download</Button>
         </div>
       )
     }
