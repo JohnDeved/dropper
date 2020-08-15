@@ -39,7 +39,7 @@ export default function Embed ({ filename }: IProps) {
     }
 
     if (filename) {
-      return <embed className="embed" src={streamRoute}></embed>
+      return <meta httpEquiv="Refresh" content={`0; url='${streamRoute}'`} />
     }
   }
 

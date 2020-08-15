@@ -51,7 +51,7 @@ async function getCryptoUrl (url: string, extKey: string) {
 }
 
 function getStreamUrl (url: string) {
-  return location.href.slice(0, -1) + url.replace('upload/tus', 'stream')
+  return location.href.slice(0, -1) + url.replace('upload/tus', 'embed')
 }
 
 const uppy = Uppy({

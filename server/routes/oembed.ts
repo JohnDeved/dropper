@@ -59,7 +59,7 @@ router.get('/', async (req, res) => {
     url: fileUrl,
     width: Number(maxwidth) || 1920,
     height: Number(maxheight) || 1080,
-    thumbnail_url: 'https://dropper.link/thumbnail.svg'
+    thumbnail_url: 'https://dropper.link/thumbnail.jpg'
   })
 })
 
