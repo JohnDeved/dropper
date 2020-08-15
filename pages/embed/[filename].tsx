@@ -105,7 +105,7 @@ export default function Embed ({ filename, name, size }: IProps) {
     </>
   }
 
-  return <div>
+  return <>
     <Head>
       {getMeta()}
 
@@ -149,5 +149,5 @@ export default function Embed ({ filename, name, size }: IProps) {
       `}</style>
     </Head>
     {getEmbed()}
-  </div>
+  </>
 }
