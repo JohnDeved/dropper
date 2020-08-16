@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 import Head from 'next/head'
-import { isVideo } from '../../server/modules/mime'
+import { isVideo, isImage } from '../../server/modules/mime'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { fileModel } from '../../server/modules/mongo'
 import bytes from 'bytes'
@@ -60,6 +60,10 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
   function getEmbed () {
     if (isVideo(filename)) {
       return <video className="embed" ref={video} controls src={streamRoute}></video>
+    }
+
+    if (isImage(filename)) {
+      return <img className="embed" src={streamRoute}></img>
     }
 
     if (filename) {
