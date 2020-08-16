@@ -230,18 +230,6 @@ export default function Index () {
     <>
       <Head>
         <title>Dropper</title>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="preload" as="style"/>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600&display=swap" rel="stylesheet"/>
-
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
-        <link rel='shortcut icon' href='/favicon.ico' />
-        <link rel="manifest" href="/site.webmanifest"></link>
-
-        <meta name="theme-color" content="#101820" />
-        <link rel='mask-icon' href='/logo.svg' color='#101820' />
-
         <meta name='application-name' content='Dropper Upload' />
         <meta name='apple-mobile-web-app-title' content='Dropper Upload' />
         <meta name='twitter:title' content='Dropper Upload' />

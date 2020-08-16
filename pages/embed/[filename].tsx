@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import Head from 'next/head'
 import { isVideo } from '../../server/modules/mime'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
@@ -36,6 +36,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 export default function Embed ({ filename, name, size, width, height }: IProps) {
   const video = useRef()
+  const [isIframe, setIsIframe] = useState(false)
 
   const streamRoute = `/stream/${filename}`
 
@@ -44,6 +45,8 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
       const player = require('player.js')
       player.HTML5Adapter(video.current).ready()
     }
+
+    setIsIframe(!!frameElement)
   })
 
   function getEmbed () {
@@ -130,7 +133,6 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
         html,body {
           width: 100%;
           height: 100%;
-          background-color: transparent !important;
         }
 
         .content {
@@ -153,6 +155,7 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
           ;
         }
       `}</style>
+      {isIframe && <style>{'html,body { background-color: transparent !important }'}</style>}
     </Head>
     {getEmbed()}
   </>
