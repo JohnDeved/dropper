@@ -59,7 +59,7 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
 
   function getEmbed () {
     if (isVideo(filename)) {
-      return <video className="embed" ref={video} controls src={streamRoute}></video>
+      return <video className="embed" ref={video} autoPlay={!isIframe} muted={!isIframe} controls src={streamRoute}></video>
     }
 
     if (isImage(filename)) {
