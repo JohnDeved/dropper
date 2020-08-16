@@ -40,13 +40,21 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
 
   const streamRoute = `/stream/${filename}`
 
+  function inIframe () {
+    try {
+      return window.self !== window.top
+    } catch (e) {
+      return true
+    }
+  }
+
   useEffect(() => {
     if (video.current) {
       const player = require('player.js')
       player.HTML5Adapter(video.current).ready()
     }
 
-    setIsIframe(!!frameElement)
+    setIsIframe(inIframe())
   })
 
   function getEmbed () {
