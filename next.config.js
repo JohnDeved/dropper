@@ -5,9 +5,6 @@ const withLess = require('@zeit/next-less')
 module.exports = withCSS(
   withSass(
     withLess({
-      sassOptions: {
-        outputStyle: 'compressed'
-      },
       lessLoaderOptions: {
         javascriptEnabled: true
       }
