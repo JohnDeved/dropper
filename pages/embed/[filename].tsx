@@ -4,7 +4,7 @@ import { isVideo, isImage } from '../../server/modules/mime'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { fileModel } from '../../server/modules/mongo'
 import bytes from 'bytes'
-import { Button } from 'rsuite'
+import { Button, Whisper, Tooltip } from 'rsuite'
 import { getDimensions } from '../../server/modules/ffmpeg'
 
 interface IProps {
@@ -75,9 +75,10 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
     if (filename) {
       return (
         <div className="content">
-          {/* <meta httpEquiv="Refresh" content={`0; url='${streamRoute}'`} /> */}
           <div className="download">
-            <img height="150px" src={`/stream/thumb/${filename}`}/>
+            <Whisper placement="top" trigger="hover" speaker={<Tooltip>{name}</Tooltip>}>
+              <img height="150px" src={`/stream/thumb/${filename}`}/>
+            </Whisper>
             <Button style={{ borderRadius: 0 }} href={streamRoute} target="_blank" appearance="primary">Download ({size})</Button>
           </div>
         </div>
