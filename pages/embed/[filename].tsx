@@ -35,7 +35,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 
 export default function Embed ({ filename, name, size, width, height }: IProps) {
-  const video = useRef()
+  const video = useRef<HTMLVideoElement>()
   const [isIframe, setIsIframe] = useState(true)
 
   const streamRoute = `/stream/${filename}`
@@ -52,6 +52,10 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
     if (video.current) {
       const player = require('player.js')
       player.HTML5Adapter(video.current).ready()
+    }
+
+    if (!inIframe()) {
+      video.current.play()
     }
 
     setIsIframe(inIframe())
