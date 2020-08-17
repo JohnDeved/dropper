@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
     html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='${width}' height='${height}' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
     width: Number(maxwidth) || Number(width),
     height: Number(maxheight) || Number(height),
-    thumbnail_url: 'https://dropper.link/thumbnail.jpg'
+    thumbnail_url: 'https://dropper.link/thumbnail.png'
   })
 })
 
