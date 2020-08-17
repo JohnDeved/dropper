@@ -36,7 +36,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 export default function Embed ({ filename, name, size, width, height }: IProps) {
   const video = useRef()
-  const [isIframe, setIsIframe] = useState(false)
+  const [isIframe, setIsIframe] = useState(true)
 
   const streamRoute = `/stream/${filename}`
 
@@ -133,7 +133,7 @@ export default function Embed ({ filename, name, size, width, height }: IProps) 
       <link rel="canonical" href={`https://dropper.link/stream/${filename}`}/>
       <link rel="alternate" type="application/json+oembed" href={`https://dropper.link/oembed?url=https://dropper.link/stream/${filename}`} title="Emma Watson Dancing Bling Ring 1"/>
 
-      <style>{`
+      <style jsx global>{`
         #__next {
           height: 100%;
           width: 100%;
