@@ -41,7 +41,7 @@ router.get('/thumb/:filename', async (req, res, next) => {
     return thumb.body.pipe(res)
   }
 
-  return res.sendFile(path.resolve('public/thumbnail.jpg'))
+  return res.sendFile(path.resolve('public/thumbnail.png'))
 })
 
 router.get('/:filename', async (req, res, next) => {
