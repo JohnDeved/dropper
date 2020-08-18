@@ -16,7 +16,7 @@ export function serve () {
 
 export function move (path: string) {
   return new Promise(resolve => {
-    spawn(rclone, ['--config=./rclone.conf', 'move', path, 'dropper-cache:']).on('close', () => {
+    spawn(rclone, ['--config=./rclone.conf', 'move', path, 'dropper:']).on('close', () => {
       resolve()
     })
   })
