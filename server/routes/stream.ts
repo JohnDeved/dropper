@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import { fileModel } from '../modules/mongo'
 import { nextjs } from '../modules/next'
-import { exists } from '../modules/rclone'
+import { exists, rcloneFileUrl } from '../modules/rclone'
 import { getVideoThumb } from '../modules/ffmpeg'
 import path from 'path'
 import { isVideo, isImage } from '../modules/mime'
@@ -37,7 +37,7 @@ router.get('/thumb/:filename', async (req, res, next) => {
   }
 
   if (isImage(filename)) {
-    const thumb = await fetch(`http://127.0.0.1:8080/stream/${filename}`)
+    const thumb = await fetch(rcloneFileUrl(filename))
     return thumb.body.pipe(res)
   }
 
@@ -47,20 +47,15 @@ router.get('/thumb/:filename', async (req, res, next) => {
 router.get('/:filename', async (req, res, next) => {
   const { filename } = req.params
 
+  const url = new URL(rcloneFileUrl(filename))
+  req.originalUrl = url.pathname
+
   if (req.get('range')) return next()
 
   const exist = await exists(filename)
   if (!exist) return nextjs.render404(req, res)
 
   const file = await fileModel.findOne({ _id: req.params.filename })
-  const response = await fetch(`${serveUrl}/stream/${filename}`, { method: 'HEAD' })
-
-  if (!response.ok && file) {
-    res.statusCode = 425
-    res.statusMessage = 'This file is still beeing processed.'
-    return nextjs.render(req, res, '/_error')
-  }
-
   if (!file) return next()
 
   file.downloads++

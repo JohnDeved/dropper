@@ -11,9 +11,10 @@ const log = chunk => process.stdout.write(chunk.toString())
 export function serve () {
   const serve = spawn(rclone, [
     '--config=./rclone.conf', 'serve', 'webdav', 'dropper-cache:', '-vv',
-    '--baseurl', '/stream',
     '--cache-db-purge',
-    '--poll-interval', '24h',
+    '--etag-hash', 'MD5',
+    '--baseurl', '/stream',
+    '--poll-interval', '0',
     '--dir-cache-time', '24h',
     '--cache-dir', 'tmp/cache',
     '--vfs-cache-mode', 'writes',
@@ -24,12 +25,23 @@ export function serve () {
   serve.stderr.on('data', log)
 }
 
-export function move (path: string) {
-  return new Promise(resolve => {
-    const { base } = parseFilepath(path)
-    console.log({ base, path })
+function transformName (filename: string) {
+  return filename.replace('.', '/_.')
+}
+
+export function rcloneFileUrl (filename: string) {
+  return `http://127.0.0.1:8080/stream/${transformName(filename)}`
+}
+
+export async function move (path: string) {
+  const { name, ext } = parseFilepath(path)
+
+  const extPath = `${name}/_${ext}`
+  await client.createDirectory(name)
+
+  await new Promise(resolve => {
     fs.createReadStream(path)
-      .pipe(client.createWriteStream(base) as ReturnType<typeof fs.createWriteStream>)
+      .pipe(client.createWriteStream(extPath) as ReturnType<typeof fs.createWriteStream>)
       .once('end', () => {
         fs.promises.unlink(path).then(resolve)
       })
@@ -37,5 +49,5 @@ export function move (path: string) {
 }
 
 export function exists (path: string): Promise<boolean> {
-  return client.exists(path)
+  return client.exists(transformName(path))
 }

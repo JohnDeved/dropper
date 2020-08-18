@@ -12,6 +12,10 @@ import { fsExists } from '../modules/fsExtra'
 
 const router = express.Router()
 
+function getRandomName () {
+  return base64url(crypto.randomBytes(5))
+}
+
 router.post('/xhr', (req, res) => {
   const busboy = new Busboy({ headers: req.headers })
 
@@ -19,7 +23,7 @@ router.post('/xhr', (req, res) => {
   if (length > 1e8) return res.sendStatus(400)
 
   busboy.on('file', async (key, file, filename) => {
-    let filehash = base64url(crypto.randomBytes(5))
+    let filehash = getRandomName()
     const { ext } = parseFile(filename)
     if (ext) filehash += ext
 
@@ -63,7 +67,7 @@ router.post('/tus', async (req, res) => {
   const keyhash = req.get('Dropper-Hash')
   const embeddable = !!req.get('Dropper-Embed')
 
-  let filehash = base64url(crypto.randomBytes(5))
+  let filehash = getRandomName()
   const { ext } = parseFile(filename)
   if (ext) filehash += ext
 
