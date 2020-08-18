@@ -9,6 +9,7 @@ import parseFile from 'parse-filepath'
 import { Buffer } from 'buffer'
 import { PassThrough } from 'stream'
 import { fsExists } from '../modules/fsExtra'
+import { nextjs } from '../modules/next'
 
 const router = express.Router()
 
@@ -32,7 +33,8 @@ router.post('/xhr', (req, res) => {
 
     busboy.on('finish', async () => {
       await fileModel.create({ _id: filehash, filename, uploaded: true, length })
-      await move(path)
+      const err = await move(path)
+      if (err) return res.sendStatus(err)
       res.setHeader('Cache-Control', 'no-store')
       res.send(`https://dropper.link/embed/${filehash}`)
     })
@@ -111,7 +113,8 @@ router.patch('/tus/:filename', async (req, res) => {
 
     if (file.length === total) {
       file.uploaded = true
-      await move(path)
+      const err = await move(path)
+      if (err) return res.sendStatus(err)
     }
 
     await file.save()

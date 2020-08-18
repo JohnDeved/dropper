@@ -47,7 +47,9 @@ export async function move (path: string) {
     body: fs.createReadStream(path)
   })
 
-  console.log(res)
+  if (!res.ok) {
+    return res.status
+  }
 
   await fs.promises.unlink(path)
 }
