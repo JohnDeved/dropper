@@ -34,6 +34,4 @@ nextjs.prepare().then(() => {
   app.get('*', (req, res) => handle(req, res))
 
   app.listen(3000)
-
-  getDimensions('26zupsQ.mp4')
 })

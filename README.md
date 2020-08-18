@@ -11,3 +11,4 @@
   * store fragment bytes is indexeddb
   * next peer, server respond with list of fragment hashes
   * client service worker respond to peers requesting fragment using hash
+* "," in filename causes bug?
