@@ -3,6 +3,7 @@ import { dev } from './config'
 import { createClient } from 'webdav'
 import fs from 'fs'
 import parseFilepath from 'parse-filepath'
+import fetch from 'node-fetch'
 
 const rclone = dev ? 'rclone' : './rclone'
 const client = createClient('http://127.0.0.1:8080/stream')
@@ -34,18 +35,21 @@ export function rcloneFileUrl (filename: string) {
 }
 
 export async function move (path: string) {
-  const { name, ext } = parseFilepath(path)
+  const { base, name } = parseFilepath(path)
 
-  const extPath = `${name}/_${ext}`
   await client.createDirectory(name)
 
-  await new Promise(resolve => {
-    fs.createReadStream(path)
-      .pipe(client.createWriteStream(extPath) as ReturnType<typeof fs.createWriteStream>)
-      .once('end', () => {
-        fs.promises.unlink(path).then(resolve)
-      })
+  const { size } = await fs.promises.stat(path)
+
+  const res = await fetch(rcloneFileUrl(base), {
+    method: 'PUT',
+    headers: { 'Content-Length': String(size) },
+    body: fs.createReadStream(path)
   })
+
+  console.log(res)
+
+  await fs.promises.unlink(path)
 }
 
 export function exists (path: string): Promise<boolean> {
