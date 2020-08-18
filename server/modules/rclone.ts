@@ -24,7 +24,7 @@ export function move (path: string) {
 
 export function exists (path: string) {
   return new Promise<boolean>(resolve => {
-    spawn(rclone, ['--config=./rclone.conf', 'lsf', `dropper-cache:${path}`]).on('close', code => {
+    spawn(rclone, ['--config=./rclone.conf', 'lsf', `dropper:${path}`]).on('close', code => {
       resolve(code === 0)
     })
   })
