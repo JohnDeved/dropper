@@ -12,8 +12,9 @@ export function serve () {
   const serve = spawn(rclone, [
     '--config=./rclone.conf', 'serve', 'webdav', 'dropper-cache:', '-vv',
     '--baseurl', '/stream',
-    '--poll-interval', '0',
-    '--dir-cache-time', '1d',
+    '--cache-db-purge',
+    '--poll-interval', '24h',
+    '--dir-cache-time', '24h',
     '--cache-dir', 'tmp/cache',
     '--vfs-cache-mode', 'writes',
     '--vfs-read-chunk-size', '32M',
