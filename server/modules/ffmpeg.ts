@@ -19,10 +19,8 @@ export function getVideoThumb (id: string) {
 }
 
 export function getDimensions (id: string) {
-  console.log(id)
   return new Promise<{ width: string, height: string }>(resolve => {
     const type = mime.lookup(id).toString()
-    console.log(type)
 
     fileModel.findOne({ _id: id }).then(({ height, width }) => {
       if (type.startsWith('video') || type.startsWith('image')) {

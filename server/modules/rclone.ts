@@ -1,7 +1,11 @@
 import { spawn } from 'child_process'
 import { dev } from './config'
+import { createClient } from 'webdav'
+import fs from 'fs'
+import parseFilepath from 'parse-filepath'
 
 const rclone = dev ? 'rclone' : './rclone'
+const client = createClient('http://127.0.0.1:8080/stream')
 const log = chunk => process.stdout.write(chunk.toString())
 
 export function serve () {
@@ -19,20 +23,16 @@ export function serve () {
 
 export function move (path: string) {
   return new Promise(resolve => {
-    const move = spawn(rclone, ['--config=./rclone.conf', 'move', path, 'dropper-cache:']).on('close', () => {
-      resolve()
-    })
-    move.stdout.on('data', log)
-    move.stderr.on('data', log)
+    const { base } = parseFilepath(path)
+    console.log({ base, path })
+    fs.createReadStream(path)
+      .pipe(client.createWriteStream(base) as ReturnType<typeof fs.createWriteStream>)
+      .once('end', () => {
+        fs.promises.unlink(path).then(resolve)
+      })
   })
 }
 
-export function exists (path: string) {
-  return new Promise<boolean>(resolve => {
-    const exists = spawn(rclone, ['--config=./rclone.conf', 'lsf', `dropper:${path}`]).on('close', code => {
-      resolve(code === 0)
-    })
-    exists.stdout.on('data', log)
-    exists.stderr.on('data', log)
-  })
+export function exists (path: string): Promise<boolean> {
+  return client.exists(path)
 }
