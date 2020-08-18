@@ -30,7 +30,7 @@ router.post('/xhr', (req, res) => {
       await fileModel.create({ _id: filehash, filename, uploaded: true, length })
       await move(path)
       res.setHeader('Cache-Control', 'no-store')
-      res.json({ filehash, filename })
+      res.send(`https://dropper.link/embed/${filehash}`)
     })
   })
 

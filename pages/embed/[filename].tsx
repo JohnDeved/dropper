@@ -1,93 +1,139 @@
-import { useRouter } from 'next/router'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import Head from 'next/head'
-import { isVideo } from '../../server/modules/mime'
+import { isVideo, isImage } from '../../server/modules/mime'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { fileModel } from '../../server/modules/mongo'
+import bytes from 'bytes'
+import { Button, Whisper, Tooltip } from 'rsuite'
+import { getDimensions } from '../../server/modules/ffmpeg'
 
 interface IProps {
-  filename: string | string[]
+  filename: string
+  name: string
+  size: string
+  width: string
+  height: string
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { filename } = context.query
 
-  return {
-    props: {
-      filename
+  if (!Array.isArray(filename) && filename) {
+    const file = await fileModel.findOne({ _id: filename })
+    const { width, height } = await getDimensions(filename)
+
+    return {
+      props: {
+        filename,
+        width,
+        height,
+        name: file.filename,
+        size: bytes(file.length)
+      }
     }
   }
 }
 
-export default function Embed ({ filename }: IProps) {
-  const router = useRouter()
-  const video = useRef()
+export default function Embed ({ filename, name, size, width, height }: IProps) {
+  const video = useRef<HTMLVideoElement>()
+  const [isIframe, setIsIframe] = useState(false)
 
   const streamRoute = `/stream/${filename}`
+
+  function inIframe () {
+    try {
+      return window.self !== window.top
+    } catch (e) {
+      return true
+    }
+  }
 
   useEffect(() => {
     if (video.current) {
       const player = require('player.js')
       player.HTML5Adapter(video.current).ready()
     }
-  })
 
-  function getEmbed () {
-    if (!Array.isArray(filename)) {
-      if (filename && isVideo(filename)) {
-        return <video className="embed" ref={video} controls src={streamRoute}></video>
+    if (!inIframe()) {
+      if (video.current) {
+        video.current.play()
       }
     }
 
+    setIsIframe(inIframe())
+  })
+
+  function getEmbed () {
+    if (isVideo(filename)) {
+      return <video className="embed video" ref={video} muted={!isIframe} controls src={streamRoute}></video>
+    }
+
+    if (isImage(filename)) {
+      return <img className="embed img" src={streamRoute}></img>
+    }
+
     if (filename) {
-      return <embed className="embed" src={streamRoute}></embed>
+      return (
+        <div className="content">
+          <div className="download">
+            <Whisper placement="top" trigger="hover" speaker={<Tooltip>{name}</Tooltip>}>
+              <img height="150px" src={`/stream/thumb/${filename}`}/>
+            </Whisper>
+            <Button style={{ borderRadius: 0 }} href={streamRoute} target="_blank" appearance="primary">Download ({size})</Button>
+          </div>
+        </div>
+      )
     }
   }
 
   function getMeta () {
     function getVideMeta () {
-      if (!Array.isArray(filename) && filename && isVideo(filename)) {
+      if (isVideo(filename)) {
         return <>
+          <meta property="og:type" content="video"/>
           <meta name="twitter:card" content="player"/>
-          <meta name="twitter:title" content={filename}/>
           <meta name="twitter:url" content={`https://dropper.link/embed/${filename}`}/>
           <meta name="twitter:player" content={`https://dropper.link/embed/${filename}`}/>
-          <meta name="twitter:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
-          <meta name="twitter:image:src" content={`https://dropper.link/stream/thumb/${filename}`}/>
-          <meta name="twitter:player:width" content="708"/>
-          <meta name="twitter:player:height" content="382"/>
+          <meta name="twitter:player:width" content={width}/>
+          <meta name="twitter:player:height" content={height}/>
 
           <meta property="og:video" content={`https://dropper.link/stream/${filename}`}/>
+          <meta property="og:video:url" content={`https://dropper.link/stream/${filename}`}/>
           <meta property="og:video:secure_url" content={`https://dropper.link/stream/${filename}`}/>
           <meta property="og:video:type" content="video/mp4"/>
-          <meta property="og:video:width" content="640"/>
-          <meta property="og:video:height" content="345"/>
-          <meta property="og:video:duration" content="2.82"/>
+
+          <meta property="og:video:width" content={width}/>
+          <meta property="og:video:height" content={height}/>
           <meta property="og:video:iframe" content={`https://dropper.link/embed/${filename}`}/>
         </>
       }
     }
 
-    if (!Array.isArray(filename)) {
-      return <>
-        <meta property="og:type" content="video"/>
-        <meta property="og:url" content={`https://dropper.link/stream/thumb/${filename}`}/>
-        <meta property="og:title" content={filename}/>
+    return <>
+      <title>{name} ({size})</title>
 
-        <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
-        <meta property="og:image:width" content="640"/>
-        <meta property="og:image:height" content="345"/>
-        <meta property="og:image:secure_url" content={`https://dropper.link/stream/thumb/${filename}`}/>
-        <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
-        <meta property="og:image:width" content="640"/>
-        <meta property="og:image:height" content="345"/>
-        <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:url" content={`https://dropper.link/embed/${filename}`}/>
+      <meta property="og:title" content={name}/>
+      <meta property="og:description" content={size}/>
+      <meta name="twitter:title" content={name}/>
+      <meta name="twitter:description" content={size}/>
 
-        {getVideMeta()}
-      </>
-    }
+      <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:image:width" content={width}/>
+      <meta property="og:image:height" content={height}/>
+      <meta property="og:image:secure_url" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta property="og:image:width" content={width}/>
+      <meta property="og:image:height" content={height}/>
+      <meta property="og:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta name="twitter:image" content={`https://dropper.link/stream/thumb/${filename}`}/>
+      <meta name="twitter:image:src" content={`https://dropper.link/stream/thumb/${filename}`}/>
+
+      {getVideMeta()}
+    </>
   }
 
-  return <div>
+  return <>
     <Head>
       {getMeta()}
 
@@ -104,11 +150,32 @@ export default function Embed ({ filename }: IProps) {
         }
 
         html,body {
-          width: 100%
-          height: 100%
+          width: 100%;
+          height: 100%;
+        }
+
+        .content {
+          display: flex;
+          justify-content: center;
+        }
+
+        .download {
+          display: flex;
+          flex-direction: column;
+          border-radius: 20px 20px 5px 5px;
+          overflow: hidden;
+          box-shadow:
+            0 0.7px 2.2px rgba(0, 0, 0, 0.02),
+            0 1.7px 5.3px rgba(0, 0, 0, 0.028),
+            0 3.1px 10px rgba(0, 0, 0, 0.035),
+            0 5.6px 17.9px rgba(0, 0, 0, 0.042),
+            0 10.4px 33.4px rgba(0, 0, 0, 0.05),
+            0 25px 80px rgba(0, 0, 0, 0.07)
+          ;
         }
       `}</style>
+      {isIframe && <style>{'html,body { background-color: transparent !important }'}</style>}
     </Head>
     {getEmbed()}
-  </div>
+  </>
 }

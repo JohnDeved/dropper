@@ -41,7 +41,7 @@ router.get('/thumb/:filename', async (req, res, next) => {
     return thumb.body.pipe(res)
   }
 
-  return res.sendFile(path.resolve('public/thumbnail.svg'))
+  return res.sendFile(path.resolve('public/thumbnail.png'))
 })
 
 router.get('/:filename', async (req, res, next) => {
@@ -68,7 +68,7 @@ router.get('/:filename', async (req, res, next) => {
   await file.save()
 
   req.params.filename = file.filename
-  next()
+  return next()
 }, proxy)
 
 router.post('/:filename', async (req, res, next) => {

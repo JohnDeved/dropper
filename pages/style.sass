@@ -16,12 +16,25 @@
     padding: 10px 20px
     border-right: solid white .5px
 
-video.embed
-  height: 100vh
-  width: 100%
+.embed
+  &.video
+    max-height: 100%
+    max-width: 100%
+    margin: auto
 
-embed.embed
-  width: 100%
+  &.img
+    max-height: 100%
+    max-width: 100%
+    margin: auto
+
+.download img
+  height: 200px
+  background-position: center
+  background-repeat: no-repeat
+  background-size: cover
+  border: solid 1px rgba(255, 255, 255, 0.1)
+  border-bottom: 0
+  border-radius: 25px 25px 0 0
 
 .setting
   height: 40px

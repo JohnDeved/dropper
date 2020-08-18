@@ -8,6 +8,7 @@ import { KeysDB, TSettings, TSetting } from '../types/common'
 
 import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
+import Head from 'next/head'
 
 function getDB () {
   return openDB<KeysDB>('dropper', 2, {
@@ -50,7 +51,7 @@ async function getCryptoUrl (url: string, extKey: string) {
 }
 
 function getStreamUrl (url: string) {
-  return location.href.slice(0, -1) + url.replace('upload/tus', 'stream')
+  return location.href.slice(0, -1) + url.replace('upload/tus', 'embed')
 }
 
 const uppy = Uppy({
@@ -226,60 +227,89 @@ export default function Index () {
   }
 
   return (
-    <div className="index">
-      <div className="header">
-        <div className="logo">
-          <img src="/logo.svg" alt="Dropper Logo"/>
-          <p>easy file uploads</p>
-        </div>
-        <div className="settings">
-          <Badge content="NEW">
+    <>
+      <Head>
+        <title>Dropper</title>
+        <meta name='application-name' content='Dropper Upload' />
+        <meta name='apple-mobile-web-app-title' content='Dropper Upload' />
+        <meta name='twitter:title' content='Dropper Upload' />
+        <meta property='og:title' content='Dropper Upload' />
+        <meta property='og:site_name' content='Dropper Upload' />
+
+        <meta name='apple-mobile-web-app-capable' content='yes' />
+        <meta name='mobile-web-app-capable' content='yes' />
+
+        <meta name='description' content='Dropper offers free encrypted file uploads, without any file size limit.' />
+        <meta name='twitter:description' content='Dropper offers free encrypted file uploads, without any file size limit.' />
+        <meta property='og:description' content='Dropper offers free encrypted file uploads, without any file size limit.' />
+
+        <meta name='twitter:card' content='summary' />
+        <meta name='twitter:url' content='https://dropper.link' />
+        <meta name='twitter:image' content='https://dropper.link/android-chrome-192x192.png' />
+        <meta name='twitter:creator' content='@undefined_prop' />
+
+        <meta property='og:type' content='website' />
+        <meta property='og:url' content='https://dropper.link' />
+        <meta property='og:image' content='https://dropper.link/apple-touch-icon.png' />
+        <meta name='format-detection' content='telephone=no' />
+
+        <meta name='apple-mobile-web-app-status-bar-style' content='default' />
+        <meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover' />
+      </Head>
+
+      <div className="index">
+        <div className="header">
+          <div className="logo">
+            <img src="/logo.svg" alt="Dropper Logo"/>
+            <p>easy file uploads</p>
+          </div>
+          <div className="settings">
             <IconButton onClick={() => setModalOpen(true)} icon={<Icon icon="cog"/>} circle size="lg" />
-          </Badge>
+          </div>
         </div>
+
+        <div className="upload">
+          <Dashboard
+            uppy={uppy}
+            theme="dark"
+            showProgressDetails={true}
+            proudlyDisplayPoweredByUppy={false}
+            width="100%" height="calc(100vh - 110px)"
+            hideUploadButton={false}
+          />
+        </div>
+
+        <footer>
+          <a href="/tos.txt">Terms of Service</a>
+          <span style={{ margin: '0 5px' }}>|</span>
+          <a href="/privacy.txt">Privacy Policy</a>
+        </footer>
+
+        <Modal show={modalOpen} onHide={() => setModalOpen(false)}>
+          <Modal.Header>
+            <Modal.Title>Dropper Settings</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="setting">
+              <label>Encryption (beta)</label>
+              {getEncryptionToggle()}
+              <Whisper placement="top" trigger="hover" speaker={encryptInfo}>
+                <Icon className="info" icon="question2"></Icon>
+              </Whisper>
+            </div>
+            <div className="setting">
+              <label>Allow Embed</label>
+              {getEmbedToggle()}
+              <Whisper placement="top" trigger="hover" speaker={embedInfo}>
+                <Icon className="info" icon="question2"></Icon>
+              </Whisper>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={() => setModalOpen(false)} appearance="subtle">Close</Button>
+          </Modal.Footer>
+        </Modal>
       </div>
-
-      <div className="upload">
-        <Dashboard
-          uppy={uppy}
-          theme="dark"
-          showProgressDetails={true}
-          proudlyDisplayPoweredByUppy={false}
-          width="100%" height="calc(100vh - 110px)"
-          hideUploadButton={false}
-        />
-      </div>
-
-      <footer>
-        <a href="/tos.txt">Terms of Service</a>
-        <span style={{ margin: '0 5px' }}>|</span>
-        <a href="/privacy.txt">Privacy Policy</a>
-      </footer>
-
-      <Modal show={modalOpen} onHide={() => setModalOpen(false)}>
-        <Modal.Header>
-          <Modal.Title>Dropper Settings</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="setting">
-            <label>Encryption</label>
-            {getEncryptionToggle()}
-            <Whisper placement="top" trigger="hover" speaker={encryptInfo}>
-              <Icon className="info" icon="question2"></Icon>
-            </Whisper>
-          </div>
-          <div className="setting">
-            <label>Allow Embed</label>
-            {getEmbedToggle()}
-            <Whisper placement="top" trigger="hover" speaker={embedInfo}>
-              <Icon className="info" icon="question2"></Icon>
-            </Whisper>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={() => setModalOpen(false)} appearance="subtle">Close</Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
+    </>
   )
 }

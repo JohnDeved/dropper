@@ -1,6 +1,7 @@
 import express from 'express'
 import { fileModel } from '../modules/mongo'
 import { isVideo, isImage } from '../modules/mime'
+import { getDimensions } from '../modules/ffmpeg'
 
 const router = express.Router()
 
@@ -12,10 +13,10 @@ router.get('/', async (req, res) => {
 
   const [, filename] = url.match(urlRegex)
   const file = await fileModel.findOne({ _id: filename })
+  const { height, width } = await getDimensions(filename)
 
   if (!file) return res.sendStatus(404)
 
-  const fileUrl = `https://dropper.link/stream/${filename}`
   const embedUrl = `https://dropper.link/embed/${filename}`
   const thumbUrl = `https://dropper.link/stream/thumb/${filename}`
 
@@ -26,10 +27,9 @@ router.get('/', async (req, res) => {
       title: file.filename,
       provider_name: 'Dropper',
       provider_url: 'https://dropper.link/',
-      html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1920' height='1080' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
-      url: fileUrl,
-      width: Number(maxwidth) || 1920,
-      height: Number(maxheight) || 1080,
+      html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='${width}' height='${height}' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
+      width: Number(maxwidth) || Number(width),
+      height: Number(maxheight) || Number(height),
       thumbnail_url: thumbUrl
     })
   }
@@ -41,10 +41,9 @@ router.get('/', async (req, res) => {
       title: file.filename,
       provider_name: 'Dropper',
       provider_url: 'https://dropper.link/',
-      html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1920' height='1080' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
-      url: fileUrl,
-      width: Number(maxwidth) || 1920,
-      height: Number(maxheight) || 1080,
+      html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='${width}' height='${height}' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
+      width: Number(maxwidth) || Number(width),
+      height: Number(maxheight) || Number(height),
       thumbnail_url: embedUrl
     })
   }
@@ -55,11 +54,10 @@ router.get('/', async (req, res) => {
     title: file.filename,
     provider_name: 'Dropper',
     provider_url: 'https://dropper.link/',
-    html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='1920' height='1080' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
-    url: fileUrl,
-    width: Number(maxwidth) || 1920,
-    height: Number(maxheight) || 1080,
-    thumbnail_url: 'https://dropper.link/thumbnail.svg'
+    html: `<iframe src='${embedUrl}' frameborder='0' scrolling='no' width='${width}' height='${height}' style='position:absolute;top:0;left:0;' allowfullscreen></iframe>`,
+    width: Number(maxwidth) || Number(width),
+    height: Number(maxheight) || Number(height),
+    thumbnail_url: 'https://dropper.link/thumbnail.png'
   })
 })
 
