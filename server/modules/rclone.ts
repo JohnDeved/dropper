@@ -10,7 +10,7 @@ export function serve () {
     '--config=./rclone.conf', 'serve', 'http', 'dropper-cache:', '-vv',
     '--baseurl', '/stream',
     '--cache-dir', 'tmp/cache',
-    '--vfs-cache-mode', 'full',
+    '--vfs-cache-mode', 'writes',
     '--vfs-read-chunk-size', '32M',
     '--vfs-read-chunk-size-limit', '5G'
   ])
