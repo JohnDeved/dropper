@@ -10,8 +10,8 @@ export function serve () {
     '--config=./rclone.conf', 'serve', 'http', 'dropper:', '-vv',
     '--baseurl', '/stream',
     '--poll-interval', '15s',
-    '--cache-dir', 'tmp/cache'
-    // '--vfs-cache-mode', 'full'
+    '--cache-dir', 'tmp/cache',
+    '--vfs-cache-mode', 'minimal'
   ])
   serve.stdout.on('data', log)
   serve.stderr.on('data', log)
