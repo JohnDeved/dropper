@@ -2,10 +2,9 @@ import { spawn } from 'child_process'
 import { dev } from './config'
 
 const rclone = dev ? 'rclone' : './rclone'
+const log = chunk => process.stdout.write(chunk.toString())
 
 export function serve () {
-  const log = chunk => process.stdout.write(chunk.toString())
-
   const serve = spawn(rclone, [
     '--config=./rclone.conf', 'serve', 'http', 'dropper-cache:', '-vv',
     '--baseurl', '/stream',
@@ -20,16 +19,20 @@ export function serve () {
 
 export function move (path: string) {
   return new Promise(resolve => {
-    spawn(rclone, ['--config=./rclone.conf', 'move', path, 'dropper:']).on('close', () => {
+    const move = spawn(rclone, ['--config=./rclone.conf', 'move', path, 'dropper-cache:']).on('close', () => {
       resolve()
     })
+    move.stdout.on('data', log)
+    move.stderr.on('data', log)
   })
 }
 
 export function exists (path: string) {
   return new Promise<boolean>(resolve => {
-    spawn(rclone, ['--config=./rclone.conf', 'lsf', `dropper:${path}`]).on('close', code => {
+    const exists = spawn(rclone, ['--config=./rclone.conf', 'lsf', `dropper:${path}`]).on('close', code => {
       resolve(code === 0)
     })
+    exists.stdout.on('data', log)
+    exists.stderr.on('data', log)
   })
 }
