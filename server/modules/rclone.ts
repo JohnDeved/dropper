@@ -6,7 +6,7 @@ const log = chunk => process.stdout.write(chunk.toString())
 
 export function serve () {
   const serve = spawn(rclone, [
-    '--config=./rclone.conf', 'serve', 'http', 'dropper-cache:', '-vv',
+    '--config=./rclone.conf', 'serve', 'webdav', 'dropper-cache:', '-vv',
     '--baseurl', '/stream',
     '--cache-dir', 'tmp/cache',
     '--vfs-cache-mode', 'writes',
