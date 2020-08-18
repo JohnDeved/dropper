@@ -8,7 +8,11 @@ export function serve () {
 
   const serve = spawn(rclone, [
     '--config=./rclone.conf', 'serve', 'http', 'dropper-cache:', '-vv',
-    '--baseurl', '/stream'
+    '--baseurl', '/stream',
+    '--cache-dir', 'tmp/cache',
+    '--vfs-cache-mode', 'full',
+    '--vfs-read-chunk-size', '32M',
+    '--vfs-read-chunk-size-limit', '5G'
   ])
   serve.stdout.on('data', log)
   serve.stderr.on('data', log)
