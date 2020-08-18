@@ -11,7 +11,9 @@ export function serve () {
     '--baseurl', '/stream',
     '--poll-interval', '15s',
     '--cache-dir', 'tmp/cache',
-    '--vfs-cache-mode', 'minimal'
+    '--vfs-cache-mode', 'writes',
+    '--vfs-read-chunk-size', '32M',
+    '--vfs-read-chunk-size-limit', '2G'
   ])
   serve.stdout.on('data', log)
   serve.stderr.on('data', log)
