@@ -9,7 +9,6 @@ import parseFile from 'parse-filepath'
 import { Buffer } from 'buffer'
 import { PassThrough } from 'stream'
 import { fsExists } from '../modules/fsExtra'
-import { nextjs } from '../modules/next'
 
 const router = express.Router()
 

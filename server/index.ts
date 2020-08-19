@@ -9,7 +9,6 @@ import oembed from './routes/oembed'
 import { dev } from './modules/config'
 import crypto from './routes/crypto'
 import cors from 'cors'
-import { getDimensions } from './modules/ffmpeg'
 
 if (!dev) {
   Sentry.init({
