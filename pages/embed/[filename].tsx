@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
 import Head from 'next/head'
 import { isVideo, isImage } from '../../server/modules/mime'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { GetServerSideProps } from 'next'
 import { fileModel } from '../../server/modules/mongo'
 import bytes from 'bytes'
 import { Button, Whisper, Tooltip } from 'rsuite'

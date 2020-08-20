@@ -36,10 +36,9 @@ export function rcloneFileUrl (filename: string) {
 
 export async function move (path: string) {
   const { base, name } = parseFilepath(path)
+  const { size } = await fs.promises.stat(path)
 
   await client.createDirectory(name)
-
-  const { size } = await fs.promises.stat(path)
 
   const res = await fetch(rcloneFileUrl(base), {
     method: 'PUT',
