@@ -38,16 +38,20 @@ export async function move (path: string) {
   const { base, name } = parseFilepath(path)
   const { size } = await fs.promises.stat(path)
 
-  await client.createDirectory(name)
+  const mkdir = await fetch(rcloneFileUrl(name), { method: 'MKCOL' })
 
-  const res = await fetch(rcloneFileUrl(base), {
+  if (!mkdir.ok) {
+    return mkdir.status
+  }
+
+  const upload = await fetch(rcloneFileUrl(base), {
     method: 'PUT',
     headers: { 'Content-Length': String(size) },
     body: fs.createReadStream(path)
   })
 
-  if (!res.ok) {
-    return res.status
+  if (!upload.ok) {
+    return upload.status
   }
 
   await fs.promises.unlink(path)
