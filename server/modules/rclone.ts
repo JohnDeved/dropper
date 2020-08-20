@@ -41,6 +41,7 @@ export async function move (path: string) {
   const mkdir = await fetch(rcloneFileUrl(name), { method: 'MKCOL' })
 
   if (!mkdir.ok) {
+    console.error('webdav mkdir issue')
     return mkdir.status
   }
 
@@ -51,6 +52,7 @@ export async function move (path: string) {
   })
 
   if (!upload.ok) {
+    console.error('webdav upload issue')
     return upload.status
   }
 
