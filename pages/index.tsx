@@ -10,8 +10,8 @@ import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
 import Head from 'next/head'
 
-function getDB () {
-  return openDB<KeysDB>('dropper', 2, {
+async function getDB () {
+  const db = await openDB<KeysDB>('dropper', 2, {
     upgrade (db, oldv) {
       if (oldv < 1) {
         db.createObjectStore('cryptkeys')
@@ -22,6 +22,10 @@ function getDB () {
       }
     }
   })
+  if (!(await db.get('settings', 0))) {
+    await db.put('settings', { encryption: false, embed: false }, 0)
+  }
+  return db
 }
 
 async function getCryptKey (fileId: string) {
