@@ -22,7 +22,8 @@ async function getDB () {
       }
     }
   })
-  if (!(await db.get('settings', 0))) {
+  const settings = await db.get('settings', 0)
+  if (!settings || settings.encryption || settings.embed) {
     await db.put('settings', { encryption: false, embed: false }, 0)
   }
   return db
