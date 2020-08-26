@@ -267,9 +267,10 @@ export default function Index () {
             <img src="/logo.svg" alt="Dropper Logo"/>
             <p>easy file uploads</p>
           </div>
-          <div className="settings">
+          {/* TODO: fix encryption ASAP */ }
+          {/* <div className="settings">
             <IconButton onClick={() => setModalOpen(true)} icon={<Icon icon="cog"/>} circle size="lg" />
-          </div>
+          </div> */}
         </div>
 
         <div className="upload">
