@@ -10,8 +10,8 @@ import '@uppy/core/dist/style.css'
 import '@uppy/dashboard/dist/style.css'
 import Head from 'next/head'
 
-function getDB () {
-  return openDB<KeysDB>('dropper', 2, {
+async function getDB () {
+  const db = await openDB<KeysDB>('dropper', 2, {
     upgrade (db, oldv) {
       if (oldv < 1) {
         db.createObjectStore('cryptkeys')
@@ -22,6 +22,11 @@ function getDB () {
       }
     }
   })
+  const settings = await db.get('settings', 0)
+  if (!settings || settings.encryption || settings.embed) {
+    await db.put('settings', { encryption: false, embed: false }, 0)
+  }
+  return db
 }
 
 async function getCryptKey (fileId: string) {
@@ -263,9 +268,10 @@ export default function Index () {
             <img src="/logo.svg" alt="Dropper Logo"/>
             <p>easy file uploads</p>
           </div>
-          <div className="settings">
+          {/* TODO: fix encryption ASAP */ }
+          {/* <div className="settings">
             <IconButton onClick={() => setModalOpen(true)} icon={<Icon icon="cog"/>} circle size="lg" />
-          </div>
+          </div> */}
         </div>
 
         <div className="upload">

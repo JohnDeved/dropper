@@ -74,7 +74,7 @@ router.post('/tus', async (req, res) => {
 
   await fileModel.create({ _id: filehash, filename, length, vcrypto, keyhash, embeddable })
 
-  fs.promises.writeFile(`tmp/${filehash}`, Buffer.from([]))
+  await fs.promises.writeFile(`tmp/${filehash}`, Buffer.from([]))
 
   res.setHeader('Tus-Resumable', '1.0.0')
   res.setHeader('Cache-Control', 'no-store')
