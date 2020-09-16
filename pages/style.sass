@@ -61,6 +61,7 @@
   .header
     display: flex
     justify-content: center
+    justify-self: flex-start
 
     .logo
       margin: 0 20px
@@ -115,3 +116,64 @@
 
     .uppy-Dashboard-inner
       border: unset !important
+
+
+  /* 
+    File History
+   */
+
+.list-wrapper
+  height: calc( 100vh - 110px )
+
+  .page-title
+    width: 100%
+    height: 50px
+    display: flex
+    place-content: center
+    place-items: center
+
+  .list
+    padding: 0px 15px
+    display: grid
+    gap: 1rem
+    grid-template-columns: repeat(auto-fill, minmax(unquote('min(200px, 100%)'), 1fr))
+
+    .list-item
+      // margin: 5px 15px
+      // width: calc( 25% - 15px - 15px)
+      width: 100%
+      height: 190px
+      position: relative
+      border-radius: 3px
+      display: block
+      background: #151724
+      min-width: 140px
+      box-shadow: 0 0.7px 2.2px rgba(0, 0, 0, 0.02), 0 1.7px 5.3px rgba(0, 0, 0, 0.028), 0 3.1px 10px rgba(0, 0, 0, 0.035), 0 5.6px 17.9px rgba(0, 0, 0, 0.042),  10.4px 33.4px rgba(0, 0, 0, 0.05),  25px 80px rgba(0, 0, 0, 0.07)
+      
+      .list-item-preview
+        border-radius: 3px 3px 0 0
+        width: 100%
+        height: 140px
+        background-size: cover
+        background-position: center
+        background-repeat: no-repeat
+
+      .list-item-info
+        width: 100%
+        padding: 0px 5px
+        padding-top: 9px
+        display: flex
+        flex-direction: column
+
+        .list-item-name
+          font-size: 12px
+          line-height: 1.3
+          font-weight: 500
+          margin-bottom: 4px
+          word-break: break-all
+
+        .list-item-size
+          font-size: 11px
+          line-height: 1.3
+          font-weight: normal
+          color: rgb(191, 191, 191)
