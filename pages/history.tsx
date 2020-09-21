@@ -1,8 +1,24 @@
 import bytes from 'bytes'
 import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { Dropdown, Icon, IconButton, Notification } from 'rsuite'
 
 export default function History () {
+  const copy = (type: 'embed' | 'stream', id: string) => {
+    navigator.clipboard.writeText(`https://dropper.link/${type}/${id}`)
+      .then(() => {
+        Notification.success({
+          title: 'Copied to Clipboard',
+          description: `Copied the File ${type === 'embed' ? type : ''} URL to Clipboard`
+        })
+      })
+      .catch(e => {
+        Notification.error({
+          title: 'Error',
+          description: 'The URL wasn\'t copied to the Clipboard because an error'
+        })
+      })
+  }
+
   const [files, setFiles] = useState([])
 
   useEffect(() => {
@@ -36,13 +52,35 @@ export default function History () {
             const fileID = fileIDExt.replace(/\..*/, '')
 
             return (<div className="list-item" key={x.uploadUrl}>
+              {/* TODO: #18 Fix thumb performance */}
               <div className="list-item-preview" style={{ backgroundImage: `url(/stream/thumb/${fileIDExt})` }}>
               </div>
-              <div className="list-item-info">
-                <span className="list-item-name">{x.metadata.name}</span>
-                <span className="list-item-size">{bytes(x.size)}</span>
+              <div className="list-item-text">
+                <div className="list-item-info">
+                  <span className="list-item-name">{x.metadata.name}</span>
+                  <span className="list-item-size">{bytes(x.size)}</span>
+                </div>
+                <div className="list-item-menu">
 
+                  <Dropdown className="list-item-dropdown"
+                    renderTitle={() => {
+                      return <IconButton className="list-dropdown-button" appearance="subtle" icon={<Icon icon="ellipsis-v" />} />
+                      //  <Icon icon="ellipsis-v" />
+                    }}
+                  >
+                    <Dropdown.Item onSelect={() => copy('stream', fileIDExt)}>
+                      <Icon icon="copy" /> Copy URL
+                    </Dropdown.Item>
+                    <Dropdown.Item onSelect={() => copy('embed', fileIDExt)}>
+                      <Icon icon="copy" /> Copy embed URL
+                    </Dropdown.Item>
+                    <Dropdown.Item onSelect={() => Notification.info({ title: 'Info', description: 'This feature is not yet fully implemented' })}>
+                      <Icon icon="trash" /> Delete File
+                    </Dropdown.Item>
+                  </Dropdown>
+                </div>
               </div>
+
             </div>)
           })}
         </div>
