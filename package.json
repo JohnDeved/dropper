@@ -39,7 +39,7 @@
     "ffprobe-static": "^3.0.0",
     "hbs": "^4.1.1",
     "http-proxy-middleware": "^1.0.5",
-    "idb": "^5.0.4",
+    "idb": "^7.0.0",
     "less": "^3.12.0",
     "mime-types": "^2.1.27",
     "mongoose": "^5.9.24",
