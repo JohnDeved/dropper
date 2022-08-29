@@ -35,7 +35,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.2",
     "express": "^4.17.1",
-    "ffmpeg-static": "^4.2.6",
+    "ffmpeg-static": "^5.1.0",
     "ffprobe-static": "^3.0.0",
     "hbs": "^4.1.1",
     "http-proxy-middleware": "^1.0.5",
