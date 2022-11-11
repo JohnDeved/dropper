@@ -18,7 +18,7 @@
     "@sentry/node": "^5.19.2",
     "@typegoose/typegoose": "^7.3.0",
     "@types/bytes": "^3.1.0",
-    "@uppy/companion": "^2.0.0-alpha.8",
+    "@uppy/companion": "^4.1.0",
     "@uppy/core": "^1.12.0",
     "@uppy/react": "^1.10.0",
     "@uppy/tus": "^1.7.1",
